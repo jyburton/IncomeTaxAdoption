@@ -1,7 +1,6 @@
 # ignore temp files w/ trailing ~
 *~
 
-
 # ignore hidden files
 .*
 
