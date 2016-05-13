@@ -5,7 +5,7 @@
 .*
 
 # ignore files with the rolling extensions
-*.DS_Store
+*.DS_Store 
 *.Rhistory
 *.aux
 *.bbl
