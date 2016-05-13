@@ -19,6 +19,7 @@
 *.fls
 *.RData
 *.Rhistory
+*.pdf
 
 # don't ignore the .gitignore file
 !.gitignore
