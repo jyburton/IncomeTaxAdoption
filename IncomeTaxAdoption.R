@@ -389,7 +389,7 @@ save(L.clogit, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAd
 
 ##################################################
 ##              MODELS 1
-##
+## [results:1]
 ##################################################
 # Start Fresh
 cat("\014")
@@ -460,6 +460,9 @@ extract.geepack <- function(model) {
         return(tr)
 }
 
+setMethod("extract", signature = className("geeglm", "geepack"),
+          definition = extract.geepack)
+
 logitgee.1.d = extract.geepack(logitgee.1)
 
 # DONT TOUCH
@@ -478,8 +481,8 @@ clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata
 
 #### TRY texreg PACKAGE
 library(texreg) # install.packages("texreg")
-# screenreg
-texreg(
+# screenreg / texreg
+screenreg(
         list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1.d),
         caption = "Structural Origins of Income Taxation",
         custom.coef.names = c(
@@ -501,6 +504,8 @@ texreg(
                 "Cox-PH: Andersen-Gill",
                 "Logit GEE"),
         label = "results:1",
+        dcolumn = T,
+        booktabs = T,
         custom.note = "%stars. Robust Standard Errors in All Models",
         fontsize = "scriptsize",
         float.pos = "h"
@@ -516,6 +521,8 @@ texreg(
 
 ################
 # COX PROP
+## [fig:simpleplots]
+## [fig:coxassump]
 ################
 
 
@@ -569,6 +576,7 @@ termplot(cox1.splines, term=2, se=TRUE)
 
 ########################################################
 #### Simulation: Relative Hazard
+#### [simulation:1] [simulation:2]
 ########################################################
 
 # devtools::install_github('christophergandrud/simPH')
@@ -628,18 +636,26 @@ simGG(sim3.a, xlab = "Agricultural Output")
 #### predicted survivor functions
 ########################################################
 
-# HERE
-# PENDING
-cox3.p = survfit(Surv(year, incometax.s) ~ constmanufact + constagricult + totpop, 
+# main model
+cox3.p = coxph(Surv(year, incometax.s) ~ constmanufact + constagricult + totpop, 
              data=cox
              )
 
-survfit(cox3.p, newdata=data.frame(constmanufact=50))
+# predictions with std. errors
+cox3.p.d= data.frame(predict(cox3.p, type="expected", se.fit=TRUE))
+cox.predicted= cbind(cox3.p.d, cox)
 
 
-plot(survfit(cox3.p, newdata=data.frame(constmanufact=50)), 
-     xlab = "Years", 
-     ylab="Survival") 
+quantile(cox$constmanufact, .15)
+
+# test
+summary(survfit(cox3.p), constmanufact=quantile(cox$constmanufact, .15))
+summary(survfit(cox3.p), constmanufact=quantile(cox$constmanufact, .75))
+
+str(summary(survfit(cox3.p), time = 2))
+
+summary(survfit(cox3.p), time=20)$surv
+
 
 ########################################################
 #### Simulation: Logit GEE
