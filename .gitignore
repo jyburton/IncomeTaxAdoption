@@ -21,6 +21,8 @@
 *.Rhistory
 *.pdf
 *.tex
+LICENSE
+README
 
 # don't ignore the .gitignore file
 !.gitignore
