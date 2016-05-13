@@ -21,6 +21,9 @@
 *.Rhistory
 *.pdf
 *.tex
+*.rdb
+*.rdx
+*.md
 LICENSE
 README
 
