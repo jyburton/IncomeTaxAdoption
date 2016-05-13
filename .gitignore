@@ -18,6 +18,7 @@
 *.fdb_latexmk
 *.fls
 *.RData
+*.RHistory
 
 # don't ignore the .gitignore file
 !.gitignore
