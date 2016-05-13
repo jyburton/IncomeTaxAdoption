@@ -1,5 +1,6 @@
 # ignore temp files w/ trailing ~
 *~
+*__
 
 # ignore hidden files
 .*
@@ -20,6 +21,12 @@
 *.RData
 *.Rhistory
 *.pdf
+*.tex
+*.rdb
+*.rdx
+*.md
+LICENSE
+README
 
 # don't ignore the .gitignore file
 !.gitignore
@@ -27,3 +34,5 @@
 # ignore folders
 back_up
 report
+cache
+figure
