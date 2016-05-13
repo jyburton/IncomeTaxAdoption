@@ -17,7 +17,6 @@
 *.gz
 *.fdb_latexmk
 *.fls
-*.bib.bak
 *.RData
 
 # don't ignore the .gitignore file
