@@ -56,3 +56,11 @@ Bahamonde_IncomeTaxAdoption.tex
 
 *.rdb
 >>>>>>> origin/LASA2016
+
+*.md
+
+*.rdx
+
+*.tex
+
+cache/__packages
