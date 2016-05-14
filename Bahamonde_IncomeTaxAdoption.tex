@@ -1,7 +1,56 @@
 %----------------------------------------------------------------------------------------
 % PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
 %----------------------------------------------------------------------------------------
-\documentclass[onesided]{article}
+\documentclass[onesided]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 %\usepackage{lipsum} % Package to generate dummy text throughout this template
 
 % \usepackage[default]{lato} % Use the LATO font
@@ -120,9 +169,9 @@
 
 \hypersetup{
     bookmarks=true,         % show bookmarks bar?
-    unicode=false,          % non-Latin characters in Acrobat’s bookmarks
-    pdftoolbar=true,        % show Acrobat’s toolbar?
-    pdfmenubar=true,        % show Acrobat’s menu?
+    unicode=false,          % non-Latin characters in Acrobat<U+2019>s bookmarks
+    pdftoolbar=true,        % show Acrobat<U+2019>s toolbar?
+    pdfmenubar=true,        % show Acrobat<U+2019>s menu?
     pdffitwindow=false,     % window fit to page when opened
     pdfstartview={FitH},    % fits the width of the page to the window
     pdftitle={My title},    % title
@@ -163,7 +212,7 @@
 \date{\today}
 
 %----------------------------------------------------------------------------------------
-
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
 \maketitle % Insert title
@@ -346,160 +395,18 @@ The association between (the lack of) economic and political competition and (th
 
 
 
-<<incometax, echo = FALSE, fig.pos='H', warning = FALSE, message = F, fig.cap='Industrial and Agricultural Outputs, and Political Contestation', fig.align='center', fig.width=14, fig.height=13,dpi=300,cache = TRUE>>=
-load("/Users/hectorbahamonde/RU/Dissertation/Data/dissertation.Rdata") 
-# Load data
-library(ggplot2) # install.packages("ggplot2")
-library(gridExtra)  # install.packages("gridExtra")
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-# To force GGplots to share same legend.
-grid_arrange_shared_legend <- function(...) {
-require(ggplot2)
-  require(gridExtra)
-  plots <- list(...)
-  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
-  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
-  lheight <- sum(legend$height)
-  grid.arrange(
-    do.call(arrangeGrob, lapply(plots, function(x)
-      x + theme(legend.position="none"))),
-    legend,
-    ncol = 1,
-    heights = grid::unit.c(unit(1, "npc") - lheight, lheight))
+{\centering \includegraphics[width=\maxwidth]{figure/incometax-1} 
+
 }
 
-#### multiplot
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-        library(grid)
-        
-        # Make a list from the ... arguments and plotlist
-        plots <- c(list(...), plotlist)
-        
-        numPlots = length(plots)
-        
-        # If layout is NULL, then use 'cols' to determine layout
-        if (is.null(layout)) {
-                # Make the panel
-                # ncol: Number of columns of plots
-                # nrow: Number of rows needed, calculated from # of cols
-                layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                                 ncol = cols, nrow = ceiling(numPlots/cols))
-        }
-        
-        if (numPlots==1) {
-                print(plots[[1]])
-                
-        } else {
-                # Set up the page
-                grid.newpage()
-                pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-                
-                # Make each plot, in the correct location
-                for (i in 1:numPlots) {
-                        # Get the i,j matrix positions of the regions that contain this subplot
-                        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-                        
-                        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                                        layout.pos.col = matchidx$col))
-                }
-        }
-}
-
-#### plots
-chile.p = ggplot() + 
-    geom_smooth(data=subset(dissertation, country=="Chile"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-    geom_smooth(data=subset(dissertation, country=="Chile"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-    xlab("Year") +
-    ylab("GDP Output (ln)") +
-    labs(colour = "Legend") +
-    scale_x_continuous(limits=c(1890,2010)) + 
-    geom_vline(data=subset(dissertation, country=="Chile"), aes(xintercept = 1924, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-    geom_vline(aes(xintercept = 1909, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-    theme_bw() + 
-    theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Chile")
-
-peru.p = ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Peru"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Peru"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Peru"), aes(xintercept = 1934, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1956, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Peru") 
-
-colombia.p = ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Colombia"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Colombia"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Colombia"), aes(xintercept = 1935, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1937, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Colombia") 
-
-ecuador.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Ecuador"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Ecuador"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Ecuador"), aes(xintercept = 1945, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1948, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Ecuador") 
+\caption[Industrial and Agricultural Outputs, and Political Contestation]{Industrial and Agricultural Outputs, and Political Contestation}\label{fig:incometax}
+\end{figure}
 
 
-venezuela.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Venezuela"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Venezuela"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Venezuela"), aes(xintercept = 1943, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1959, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Venezuela") 
-
-nicaragua.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Nicaragua"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Nicaragua"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Nicaragua"), aes(xintercept = 1974, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1984, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Nicaragua") 
-
-guatemala.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Guatemala"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Guatemala"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Income Tax (ln)") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Guatemala"), aes(xintercept = 1963, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1945, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Guatemala") 
-
-grid_arrange_shared_legend(chile.p, ecuador.p, nicaragua.p, venezuela.p, peru.p, colombia.p, guatemala.p)
-@
+\end{knitrout}
 
 \paragraph{Strong States: A story of economic contestation and political competition} The states that turned into ``strong'' and states that stayed ``weak'', shared the same initial monopolistic conditions. However, ``strong'' states were able (while being ``weak'' states) to break the structural advantages traditional sector.  What eventually differentiated strong from weak states was that the former had an industrial sector backed up with rapid industrial growth, which allowed them to bargain better political and economical conditions with the traditional sector.
 
@@ -591,168 +498,84 @@ We estimate all models using the \href{http://moxlad-staging.herokuapp.com/home/
 
 \subsection{Results}
 
-<<function, echo=FALSE, comment=NA, warning=FALSE, message=F,results='hide', cache=T>>=
-library(texreg) # install.packages("texreg")
-library(methods)
-
-## ---- texreg-extractor-geeglm ----
-extract.geepack <- function(model) {
-        s <- summary(model)
-        names <- rownames(s$coef)
-        co <- s$coef[, 1]
-        se <- s$coef[, 2]
-        pval <- s$coef[, 4]
-        
-        n <- nrow(model.frame(model))
-        nclust <- length(s$geese$clusz)
-        
-        gof = c(n, nclust)
-        gof.names = c("Num. obs.", "Num. clust.")
-        
-        tr <- createTexreg(
-                coef.names = names,
-                coef = co,
-                se = se,
-                pvalues = pval,
-                gof.names = gof.names,
-                gof = gof,
-                gof.decimal = rep(FALSE, length(gof))
-        )
-        return(tr)
-}
-
-setMethod("extract", signature = className("geeglm", "geepack"),
-          definition = extract.geepack)
-@
-
-
-<<results:1, echo=FALSE, comment=NA, warning=FALSE, message=F,results='asis', cache=T>>=
-# Load Datasets
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/cox.RData") # Cox
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/L_cox.RData") # Lagged Data for Cox
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/logitgee.RData") # Logit GEE
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RData") # For Multiple Non Competing Hazard Ratios
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/l_clogit.RData") # Lagged CONSTANT AGR MANUFACT for clogit  (fixed effects)
-
-# Loading/Installing Library
-# install.packages("survival") 
-library(survival) # Cox Models
-
-# DO NOT TOUCH
-# Model with time-transformed variables
-cox1.tt = coxph(Surv(year, incometax.s) ~ tt(constmanufact) + tt(constagricult) + cluster(country), 
-                data=cox, x=T
-)
-
-# DO NOT TOUCH
-# WORKING MODEL
-cox2 = coxph(Surv(year, incometax.s) ~ log(constmanufact) + log(constagricult) + log(totpop) + cluster(country), 
-             data=cox
-)
-
-# DO NOT TOUCH
-# LAGGED MODEL
-cox.L = coxph(Surv(year, incometax.s) ~ log(constmanufact.L) + log(constagricult.L) + log(totpop) + cluster(country), 
-              data=L.cox)
-
-
-library(geepack) # install.packages("geepack")
-## logit GEE
-logitgee.1 = geeglm(incometax.d ~ log(constmanufact) + log(constagricult) + log(totpop), 
-                    family = binomial, 
-                    id = country, 
-                    corstr = "exchangeable",
-                    data = logitgee)
-logitgee.1 = extract(logitgee.1)
-
-
-# DONT TOUCH
-# Recurrent Events: Income Tax AND Democracy
-# WORKING MODEL
-cox2.ag = coxph(Surv(year, dem.tax) ~ log(constmanufact) + log(constagricult) + log(urbpop) + cluster(country), 
-                data=ag.data
-)
-
-
-# DO NOT TOUCH
-# WORKING MODEL for clogit
-clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata(country), method= "efron", data = data)
 
 
 
-# screenreg / texreg
-texreg(
-        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1),
-        caption = "Structural Origins of Income Taxation",
-        custom.coef.names = c(
-                "Manufacture Output$_{tt}$",
-                "Agricultural Output$_{tt}$",
-                "Manufacture Output  (ln)",
-                "Agricultural Output (ln)",
-                "Total Population  (ln)",
-                "Manufacture Output$_{t-1}$  (ln)",
-                "Agricultural Output$_{t-1}$  (ln)",
-                "Urban Population  (ln)",
-                "(intercept)"
-        ),
-        custom.model.names = c(
-                "Cox-PH",
-                "Cox-PH",
-                "Cox-PH: Lagged",
-                "Conditional Logit",
-                "Cox-PH: Andersen-Gill",
-                "Logit GEE"),
-        label = "results:1",
-        custom.note = "%stars. Robust Standard Errors in All Models",
-        fontsize = "scriptsize",
-        float.pos = "h"
-)
-@
+
+\begin{table}[h]
+\begin{center}
+\begin{scriptsize}
+\begin{tabular}{l c c c c c c }
+\hline
+ & Cox-PH & Cox-PH & Cox-PH: Lagged & Conditional Logit & Cox-PH: Andersen-Gill & Logit GEE \\
+\hline
+Manufacture Output$_{tt}$         & $0.28^{***}$  &                &                &              &             &               \\
+                                  & $(0.07)$      &                &                &              &             &               \\
+Agricultural Output$_{tt}$        & $-0.25^{***}$ &                &                &              &             &               \\
+                                  & $(0.07)$      &                &                &              &             &               \\
+Manufacture Output  (ln)          &               & $31.64^{***}$  &                & $0.92^{***}$ & $5.06^{*}$  & $2.73^{**}$   \\
+                                  &               & $(3.79)$       &                & $(0.16)$     & $(2.33)$    & $(0.97)$      \\
+Agricultural Output (ln)          &               & $-24.26^{***}$ &                & $-0.43$      & $-9.91^{*}$ & $-2.80^{*}$   \\
+                                  &               & $(3.31)$       &                & $(0.23)$     & $(4.30)$    & $(1.24)$      \\
+Total Population  (ln)            &               & $61.98^{***}$  & $93.50^{***}$  &              &             & $6.11^{*}$    \\
+                                  &               & $(7.32)$       & $(11.41)$      &              &             & $(2.56)$      \\
+Manufacture Output$_{t-1}$  (ln)  &               &                & $47.50^{***}$  &              &             &               \\
+                                  &               &                & $(5.84)$       &              &             &               \\
+Agricultural Output$_{t-1}$  (ln) &               &                & $-35.99^{***}$ &              &             &               \\
+                                  &               &                & $(4.70)$       &              &             &               \\
+Urban Population  (ln)            &               &                &                &              & $-0.97$     &               \\
+                                  &               &                &                &              & $(0.80)$    &               \\
+(intercept)                       &               &                &                &              &             & $-48.54^{**}$ \\
+                                  &               &                &                &              &             & $(17.91)$     \\
+\hline
+AIC                               & 31.25         & 11.54          & 10.87          & 3248.15      & 19.97       &               \\
+R$^2$                             & 0.11          & 0.21           & 0.22           & 0.32         & 0.09        &               \\
+Max. R$^2$                        & 0.24          & 0.24           & 0.24           & 1.00         & 0.32        &               \\
+Num. events                       & 7             & 7              & 7              & 447          & 4           &               \\
+Num. obs.                         & 181           & 181            & 174            & 621          & 48          & 621           \\
+Missings                          & 0             & 0              & 0              & 0            & 186         &               \\
+PH test                           & 0.00          & 0.99           & 1.00           &              & 1.00        &               \\
+Num. clust.                       &               &                &                &              &             & 7             \\
+\hline
+\multicolumn{7}{l}{\tiny{$^{***}p<0.001$, $^{**}p<0.01$, $^*p<0.05$. Robust Standard Errors in All Models}}
+\end{tabular}
+\end{scriptsize}
+\caption{Structural Origins of Income Taxation}
+\label{results:1}
+\end{center}
+\end{table}
+
 
 % comments on the Results Table
 \autoref{results:1} shows six models\footnote{All tables were produced using the  \texttt{texreg} package (\citet[]{Leifeld:2013qy}). All Cox models were computed using the \texttt{survival R}  package (\citet{Therneau:2015zr}). The  GEE logistic regression was computed using the \texttt{geepack} package (\citet[]{Hojsgaard:2016}). This paper was written in \LaTeX \; using the dynamic report \texttt{R} package \texttt{knitr} (\citet[]{Xie:2016hl}), for fully replicable research.}. The first three are Cox models, under different time-transformations. The fourth model is a conditional logistic regression (``fixed effects'' model). The fifth model is an Andersen-Gill model which predicts the jointly realization of both the income tax and democratization. Finally, the sixth model shows a GEE logistic regression model. All these results strongly suggest that higher levels of industrial output are associated to the imposition of the income tax\footnote{``Because the coefficients are parameterized in terms of the hazard rate, a positive coefficient indicates that the hazard is increasing as a function of the covariate (and hence, the survival time is decreasing) and a negative sign indicates the hazard is decreasing as a function of the covariate'' (\citet[p. 50]{Box-Steffensmeier2004}).}. In substantive terms, as the size of the politically excluded sector catches up with the size of the agricultural incumbents, the political monopoly of the latter is broken, giving way to a series of political and economic bargains. Here we have theorized (and demonstrated in our \hyperref[unpacking]{historical} case study) that in exchange for the income tax, industrial tariffs were implemented along with more secure conditions for industrial newcomers to participate in politics. Some times, we control for different measures of population density. Population has been associated to the probability in which elites expanded the franchise. Denser populations also expand the tax base. The scarcity of people meant that local and state governments were extremely concerned with attracting migrants. Because population inflows would lower the cost of labor, and boost land values and tax revenues, these societies were induced to adopt institutions attractive to immigrants. Among these, were cheap land and political participation\footnote{\citet[p. 892-893]{Engerman2005}.}.
 
 
-<<simulation, echo=FALSE, comment=NA, warning=FALSE, message=F,results='asis', cache=T>>=
-# install.packages("devtools")
-# library(devtools)
-# devtools::install_github('christophergandrud/simPH')
-library(simPH)
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\maxwidth]{figure/simulation:1-1} 
+
+}
+
+\caption[Relative Hazards of Implementing The Income Tax]{Relative Hazards of Implementing The Income Tax: Industrial Output}\label{fig:simulation:1}
+\end{figure}
 
 
-# model
-cox3 = coxph(Surv(year, incometax.s) ~ constmanufact + constagricult + totpop + cluster(country), 
-             data=cox
-)
+\end{knitrout}
 
-set.seed(602)
-sim3.m <- coxsimLinear(cox3, 
-                       b = "constmanufact", 
-                       qi = "Relative Hazard",
-                       nsim = 2000,
-                       spin = T,
-                       Xj = seq(min(cox$constmanufact), max(cox$constmanufact), by=250)
-)
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-set.seed(602)
-sim3.a <- coxsimLinear(cox3, 
-                       b = "constagricult", 
-                       qi = "Relative Hazard",
-                       nsim = 2000,
-                       spin = T,
-                       Xj = seq(min(cox$constagricult), max(cox$constagricult), by=150)
-)
-@
-<<simulation:1, echo = FALSE, fig.pos='H', warning = FALSE, message = F, fig.cap='Relative Hazards of Implementing The Income Tax: Industrial Output', fig.align='center', fig.width=4, fig.height=3,dpi=300,cache = TRUE>>=
-# Plot
-simGG(sim3.m, xlab = "Industrial Output")
-@
+{\centering \includegraphics[width=\maxwidth]{figure/simulation:2-1} 
 
-<<simulation:2, echo = FALSE, fig.pos='H', warning = FALSE, message = F, fig.cap='Relative Hazards of Implementing The Income Tax: Agricultural Output', fig.align='center', fig.width=4, fig.height=3,dpi=300,cache = TRUE>>=
-# Plot
-simGG(sim3.a, xlab = "Agricultural Output")
-@
+}
+
+\caption[Relative Hazards of Implementing The Income Tax]{Relative Hazards of Implementing The Income Tax: Agricultural Output}\label{fig:simulation:2}
+\end{figure}
+
+
+\end{knitrout}
 
 
 % comments on the simulation
@@ -775,44 +598,79 @@ Following \citet{Gandrud2015} and \citet{King2000}, \autoref{fig:simulation:1} a
 
 \autoref{fig:simpleplots} shows two simple plots of the conditional hazard rates. These two pieces of information strongly suggest, conditional on both covariates, industrial output increases the risk of imposing an income tax law.
 
-<<simpleplots, echo = FALSE, fig.pos='H', warning = FALSE, message = F, fig.cap='Graphical Plots of the Estimates', fig.align='center', fig.width=4, fig.height=6,dpi=300,cache = TRUE>>=
-par(mfrow=c(2,1)) 
-termplot(cox2, term=1, se=TRUE)
-termplot(cox2, term=2, se=TRUE)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\maxwidth]{figure/simpleplots-1} 
+
+}
+
+\caption[Graphical Plots of the Estimates]{Graphical Plots of the Estimates}\label{fig:simpleplots}
+\end{figure}
+
+
+\end{knitrout}
 
 \subsection{Testing Proportionality Assumption}
 
 Cox \emph{proportional} models rest on the assumption that hazard rates are proportional to time dynamics\footnote{\citet{Box-Steffensmeier2004}.}. Non-proportional hazard model are becoming an increasing problem across all subfields in political science\footnote{\citet{Licht2011}.}. In this section, we test whether this assumption holds. Non-significant p-values indicate that the proportionality assumption holds. Also, \autoref{fig:coxassump} shows how the spline fitted lines (i.e., the regression coefficients of the main model) are almost constant across time, confirming that the hazard rates are, in fact, \emph{proportional}.
 
-<<coxassump, echo = FALSE, fig.pos='H', warning = FALSE, message = F, fig.cap='Graphical Plots of the Estimates against Time', fig.align='center', fig.width=5, fig.height=6,dpi=300,cache = TRUE>>=
-test.assumption = cox.zph(cox2, transform = 'log')
-print(test.assumption)
-par(mfrow=c(3,1)) 
-plot(test.assumption[1]) # covariate 1
-plot(test.assumption[2]) # covariate 2
-plot(test.assumption[3]) # covariate 3
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+##                        rho    chisq     p
+## log(constmanufact)  0.0213 0.000706 0.979
+## log(constagricult) -0.0409 0.003579 0.952
+## log(totpop)         0.0987 0.021272 0.884
+## GLOBAL                  NA 0.347609 0.951
+\end{verbatim}
+\end{kframe}\begin{figure}[H]
+
+{\centering \includegraphics[width=\maxwidth]{figure/coxassump-1} 
+
+}
+
+\caption[Graphical Plots of the Estimates against Time]{Graphical Plots of the Estimates against Time}\label{fig:coxassump}
+\end{figure}
+
+
+\end{knitrout}
 
 \subsection{Model used for Simulation Plot}
 
 \autoref{results:2} shows the estimates used to compute the 2,000 simulations in the \autoref{fig:simulation:1} and \autoref{fig:simulation:2} figures.
 
-<<altmodel, echo=FALSE, comment=NA, warning=FALSE, message=F,results='asis', cache=T>>=
-library(texreg) # install.packages("texreg")
-texreg(cox3,
-        caption = "Structural Origins of Income Taxation: Model Used to Compute Simulations",
-        custom.coef.names = c(
-                "Manufacture Output",
-                "Agricultural Output",
-                "Total Population"),
-        custom.model.names = "Cox-PH",
-        label = "results:2",
-        custom.note = "%stars. Robust Standard Errors in All Models",
-        fontsize = "scriptsize",
-        float.pos = "h"
-        )
-@
+
+\begin{table}[h]
+\begin{center}
+\begin{scriptsize}
+\begin{tabular}{l c }
+\hline
+ & Cox-PH \\
+\hline
+Manufacture Output  & $0.01^{***}$  \\
+                    & $(0.00)$      \\
+Agricultural Output & $-0.00^{***}$ \\
+                    & $(0.00)$      \\
+Total Population    & $0.00^{***}$  \\
+                    & $(0.00)$      \\
+\hline
+AIC                 & 17.99         \\
+R$^2$               & 0.18          \\
+Max. R$^2$          & 0.24          \\
+Num. events         & 7             \\
+Num. obs.           & 181           \\
+Missings            & 0             \\
+PH test             & 0.49          \\
+\hline
+\multicolumn{2}{l}{\tiny{$^{***}p<0.001$, $^{**}p<0.01$, $^*p<0.05$. Robust Standard Errors in All Models}}
+\end{tabular}
+\end{scriptsize}
+\caption{Structural Origins of Income Taxation: Model Used to Compute Simulations}
+\label{results:2}
+\end{center}
+\end{table}
+
 
 
 \newpage

@@ -5,8 +5,8 @@
 ####### GENERAL PREP
 
 # Start Fresh
-cat("\014")
 rm(list=ls())
+cat("\014")
 setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
 
 # Load/Transform the data
@@ -391,10 +391,45 @@ save(L.clogit, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAd
 ##              MODELS 1
 ## [results:1]
 ##################################################
-# Start Fresh
-cat("\014")
+
+
+##################################################
+### THIS CHUNK GOES BEFORE THE MODELS
+library(texreg) # install.packages("texreg")
+library(methods)
+
+## ---- texreg-extractor-geeglm ----
+extract.geepack <- function(model) {
+        s <- summary(model)
+        names <- rownames(s$coef)
+        co <- s$coef[, 1]
+        se <- s$coef[, 2]
+        pval <- s$coef[, 4]
+        
+        n <- nrow(model.frame(model))
+        nclust <- length(s$geese$clusz)
+        
+        gof = c(n, nclust)
+        gof.names = c("Num. obs.", "Num. clust.")
+        
+        tr <- createTexreg(
+                coef.names = names,
+                coef = co,
+                se = se,
+                pvalues = pval,
+                gof.names = gof.names,
+                gof = gof,
+                gof.decimal = rep(FALSE, length(gof))
+        )
+        return(tr)
+}
+
+setMethod("extract", signature = className("geeglm", "geepack"),
+          definition = extract.geepack)
+##################################################
+
 rm(list=ls())
-setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
+cat("\014")
 
 # Load Datasets
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
@@ -433,37 +468,8 @@ logitgee.1 = geeglm(incometax.d ~ log(constmanufact) + log(constagricult) + log(
                     id = country, 
                     corstr = "exchangeable",
                     data = logitgee)
+logitgee.1 = extract(logitgee.1)
 
-## ---- texreg-extractor-geeglm ----
-extract.geepack <- function(model) {
-        s <- summary(model)
-        names <- rownames(s$coef)
-        co <- s$coef[, 1]
-        se <- s$coef[, 2]
-        pval <- s$coef[, 4]
-        
-        n <- nrow(model.frame(model))
-        nclust <- length(s$geese$clusz)
-        
-        gof = c(n, nclust)
-        gof.names = c("Num. obs.", "Num. clust.")
-        
-        tr <- createTexreg(
-                coef.names = names,
-                coef = co,
-                se = se,
-                pvalues = pval,
-                gof.names = gof.names,
-                gof = gof,
-                gof.decimal = rep(FALSE, length(gof))
-        )
-        return(tr)
-}
-
-setMethod("extract", signature = className("geeglm", "geepack"),
-          definition = extract.geepack)
-
-logitgee.1.d = extract.geepack(logitgee.1)
 
 # DONT TOUCH
 # Recurrent Events: Income Tax AND Democracy
@@ -479,11 +485,9 @@ clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata
 
 
 
-#### TRY texreg PACKAGE
-library(texreg) # install.packages("texreg")
 # screenreg / texreg
-screenreg(
-        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1.d),
+texreg(
+        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1),
         caption = "Structural Origins of Income Taxation",
         custom.coef.names = c(
                 "Manufacture Output$_{tt}$",
@@ -504,8 +508,6 @@ screenreg(
                 "Cox-PH: Andersen-Gill",
                 "Logit GEE"),
         label = "results:1",
-        dcolumn = T,
-        booktabs = T,
         custom.note = "%stars. Robust Standard Errors in All Models",
         fontsize = "scriptsize",
         float.pos = "h"
@@ -578,7 +580,8 @@ termplot(cox1.splines, term=2, se=TRUE)
 #### Simulation: Relative Hazard
 #### [simulation:1] [simulation:2]
 ########################################################
-
+# install.packages("devtools")
+# library(devtools)
 # devtools::install_github('christophergandrud/simPH')
 library(simPH)
 
@@ -680,6 +683,162 @@ logitgee.1.s <- sim(logitgee.1, x = logitgee.1.x.L, x1= logitgee.1.x.H, num=2500
 
 
 
+########################################################
+#### TAX IMPOSITION PLOT
+########################################################
+
+load("/Users/hectorbahamonde/RU/Dissertation/Data/dissertation.Rdata") 
+# Load data
+library(ggplot2) # install.packages("ggplot2")
+library(gridExtra)  # install.packages("gridExtra")
+
+# To force GGplots to share same legend.
+grid_arrange_shared_legend <- function(...) {
+  require(ggplot2)
+  require(gridExtra)
+  plots <- list(...)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)
+  grid.arrange(
+    do.call(arrangeGrob, lapply(plots, function(x)
+      x + theme(legend.position="none"))),
+    legend,
+    ncol = 1,
+    heights = grid::unit.c(unit(1, "npc") - lheight, lheight))
+}
+
+#### multiplot
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+#### plots
+chile.p = ggplot() + 
+  geom_smooth(data=subset(dissertation, country=="Chile"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
+  geom_smooth(data=subset(dissertation, country=="Chile"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
+  xlab("Year") +
+  ylab("GDP Output (ln)") +
+  labs(colour = "Legend") +
+  scale_x_continuous(limits=c(1890,2010)) + 
+  geom_vline(data=subset(dissertation, country=="Chile"), aes(xintercept = 1924, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
+  geom_vline(aes(xintercept = 1909, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  theme_bw() + 
+  theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
+  labs(title="Chile")
+
+peru.p = ggplot() + 
+  geom_smooth(data=subset(dissertation, country=="Peru"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
+  geom_smooth(data=subset(dissertation, country=="Peru"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
+  xlab("Year") +
+  ylab("GDP Output (ln)") +
+  labs(colour = "Legend") +
+  scale_x_continuous(limits=c(1890,2010)) + 
+  geom_vline(data=subset(dissertation, country=="Peru"), aes(xintercept = 1934, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
+  geom_vline(aes(xintercept = 1956, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  theme_bw() + 
+  theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
+  labs(title="Peru") 
+
+colombia.p = ggplot() + 
+  geom_smooth(data=subset(dissertation, country=="Colombia"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
+  geom_smooth(data=subset(dissertation, country=="Colombia"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
+  xlab("Year") +
+  ylab("GDP Output (ln)") +
+  labs(colour = "Legend") +
+  scale_x_continuous(limits=c(1890,2010)) + 
+  geom_vline(data=subset(dissertation, country=="Colombia"), aes(xintercept = 1935, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
+  geom_vline(aes(xintercept = 1937, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  theme_bw() + 
+  theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
+  labs(title="Colombia") 
+
+ecuador.p= ggplot() + 
+  geom_smooth(data=subset(dissertation, country=="Ecuador"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
+  geom_smooth(data=subset(dissertation, country=="Ecuador"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
+  xlab("Year") +
+  ylab("GDP Output (ln)") +
+  labs(colour = "Legend") +
+  scale_x_continuous(limits=c(1890,2010)) + 
+  geom_vline(data=subset(dissertation, country=="Ecuador"), aes(xintercept = 1945, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
+  geom_vline(aes(xintercept = 1948, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  theme_bw() + 
+  theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
+  labs(title="Ecuador") 
+
+
+venezuela.p= ggplot() + 
+  geom_smooth(data=subset(dissertation, country=="Venezuela"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
+  geom_smooth(data=subset(dissertation, country=="Venezuela"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
+  xlab("Year") +
+  ylab("GDP Output (ln)") +
+  labs(colour = "Legend") +
+  scale_x_continuous(limits=c(1890,2010)) + 
+  geom_vline(data=subset(dissertation, country=="Venezuela"), aes(xintercept = 1943, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
+  geom_vline(aes(xintercept = 1959, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  theme_bw() + 
+  theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
+  labs(title="Venezuela") 
+
+nicaragua.p= ggplot() + 
+  geom_smooth(data=subset(dissertation, country=="Nicaragua"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
+  geom_smooth(data=subset(dissertation, country=="Nicaragua"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
+  xlab("Year") +
+  ylab("GDP Output (ln)") +
+  labs(colour = "Legend") +
+  scale_x_continuous(limits=c(1890,2010)) + 
+  geom_vline(data=subset(dissertation, country=="Nicaragua"), aes(xintercept = 1974, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
+  geom_vline(aes(xintercept = 1984, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  theme_bw() + 
+  theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
+  labs(title="Nicaragua") 
+
+guatemala.p= ggplot() + 
+  geom_smooth(data=subset(dissertation, country=="Guatemala"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
+  geom_smooth(data=subset(dissertation, country=="Guatemala"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
+  xlab("Year") +
+  ylab("GDP Output (ln)") +
+  labs(colour = "Income Tax (ln)") +
+  scale_x_continuous(limits=c(1890,2010)) + 
+  geom_vline(data=subset(dissertation, country=="Guatemala"), aes(xintercept = 1963, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
+  geom_vline(aes(xintercept = 1945, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  theme_bw() + 
+  theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
+  labs(title="Guatemala") 
+
+grid_arrange_shared_legend(chile.p, ecuador.p, nicaragua.p, venezuela.p, peru.p, colombia.p, guatemala.p)
 
 
 
