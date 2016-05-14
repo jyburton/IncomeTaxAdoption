@@ -37,4 +37,22 @@ report
 cache
 figure
 
+<<<<<<< HEAD
 .Rhistory
+=======
+*.rdx
+
+*.rdb
+
+*.rdx
+
+*.tex
+
+cache/__packages
+
+*.md
+
+Bahamonde_IncomeTaxAdoption.tex
+
+*.rdb
+>>>>>>> origin/LASA2016
