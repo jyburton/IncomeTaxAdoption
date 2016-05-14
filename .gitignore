@@ -64,3 +64,5 @@ Bahamonde_IncomeTaxAdoption.tex
 *.tex
 
 cache/__packages
+
+*.gz(busy)
