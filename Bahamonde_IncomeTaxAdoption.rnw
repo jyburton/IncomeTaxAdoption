@@ -516,11 +516,16 @@ Besides institutional investments, there were also economic compromises. The mos
 	See also \citet[p. 21]{Coatsworth2002}. There is some debate on whether protectionism is associated to economic growth. \citet[p. 10]{Coatsworth2002} argue that ``protection was associated with faster growth in the European core and their English-speaking offshoots [...] but it was \emph{not} associated with fast growth in [...] Latin American periphery'' (emphasis in the original).
 }. 
 
-\paragraph{Weak States: A story of uncontested economic elites and political monopoly} When industrial output was not large-enough to compensate for long-term losses associated to future taxation of little revenues, incumbents engaged in predatory strategies. Contrary to \citet[p. 127]{Acemoglu2000a}, industrial development is not blocked by agricultural elites ``because there is no credible commitment to compensate them once economic changes have been implemented'', but because the \emph{political} threat of being displaced by a weak economic sector was too small. However the blocking/expropriation acts as a way to provide to the rulers instantaneous liquidity in the short-term. 
+\paragraph{Weak States: A story of uncontested economic elites and political monopoly} When industrial output was not large-enough to compensate for long-term losses associated to future taxation of little revenues, incumbents engaged in predatory strategies. Contrary to \citet[p. 127]{Acemoglu2000a}, industrial development is not blocked by agricultural elites ``because there is no credible commitment to compensate them once economic changes have been implemented''. However, in this case blocking/expropriation acts as a way to provide to the rulers instantaneous liquidity in the short-term. One could argue another causal chain. Economic changes alter the distribution of political power. When the industrial sector increases, so do the incentives for incumbents to expropriate them. For example, \citet[p. 28]{Robinson1999} argues that ``[i]f development changes the political equilibrium, then this may deter elites from creating institutions and adopting policies which stimulate development''. However, 
 
-% HERE include more on developmentalist states and expropriatory states
 
-\citet[p. 4]{Robinson1999}: ``the \emph{more encompassing an elite} and  the \emph{longer its time horizon}, the \emph{more likely} it is to be predatory''
+
+
+Yet, the traditional sector is at the same time the political monopolist, the \emph{political} threat of being displaced by a weak economic sector is too small. 
+
+
+
+
 
 
 
