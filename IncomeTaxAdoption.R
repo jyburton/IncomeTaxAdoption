@@ -488,7 +488,7 @@ clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata
 # screenreg / texreg
 texreg(
         list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1),
-        caption = "Structural Origins of Income Taxation",
+        caption = "Structural Origins of Income Taxation: Income Tax Law and Democratic Development",
         custom.coef.names = c(
                 "Manufacture Output$_{tt}$",
                 "Agricultural Output$_{tt}$",
