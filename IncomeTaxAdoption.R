@@ -501,15 +501,17 @@ texreg(
                 "(intercept)"
         ),
         custom.model.names = c(
-                "Cox-PH",
-                "Cox-PH",
+                "Cox-PH: Time Transformed",
+                "Cox-PH: Logged",
                 "Cox-PH: Lagged",
-                "Conditional Logit",
+                "Conditional Logit: FE",
                 "Cox-PH: Andersen-Gill",
                 "Logit GEE"),
         label = "results:1",
         custom.note = "%stars. Robust Standard Errors in All Models",
         fontsize = "scriptsize",
+        center = TRUE,
+        no.margin = TRUE, 
         float.pos = "h"
 )
         
