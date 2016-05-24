@@ -67,3 +67,5 @@ cache/__packages
 Presentation
 
 *.gz(busy)
+
+*.snm
