@@ -37,9 +37,8 @@ report
 cache
 figure
 
-<<<<<<< HEAD
 .Rhistory
-=======
+
 *.rdx
 
 *.rdb
@@ -55,7 +54,7 @@ cache/__packages
 Bahamonde_IncomeTaxAdoption.tex
 
 *.rdb
->>>>>>> origin/LASA2016
+
 
 *.md
 
@@ -64,5 +63,7 @@ Bahamonde_IncomeTaxAdoption.tex
 *.tex
 
 cache/__packages
+
+Presentation
 
 *.gz(busy)
