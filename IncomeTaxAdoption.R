@@ -582,11 +582,8 @@ termplot(cox1.splines, term=2, se=TRUE)
 #### Simulation: Relative Hazard
 #### [simulation:1] [simulation:2]
 ########################################################
-# install.packages("devtools")
-# library(devtools)
-# devtools::install_github('christophergandrud/simPH')
-library(simPH)
-
+# load library
+library(survival)
 # I use this one for simulation (since it seems that the sim function doesn't take well natural logs)
 cox3 = coxph(Surv(year, incometax.s) ~ constmanufact + constagricult + totpop + cluster(country), 
              data=cox
@@ -606,6 +603,10 @@ texreg(cox3,
         float.pos = "h"
         )
 
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github('christophergandrud/simPH')
+library(simPH)
 
 set.seed(602)
 sim3.m <- coxsimLinear(cox3, 
