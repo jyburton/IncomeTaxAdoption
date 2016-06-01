@@ -42,7 +42,7 @@
 \pagestyle{fancy} % All pages have headers and footers
 \fancyhead{} % Blank out the default header
 \fancyfoot{} % Blank out the default footer
-\fancyhead[C]{Prepared for LASA 2016 NYC  $\bullet$ Very preliminary, please DO NOT cite} % Custom header text
+\fancyhead[C]{Very preliminary draft, please DO NOT cite} % Custom header text
 \fancyfoot[RO,LE]{\thepage} % Custom footer text
 
 %----------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@
 \author[1]{
 \large
 \textsc{H\'ector Bahamonde}\\ 
-%\thanks{I thank Bob Kaufman, Dan Kelemen, Doug Blair, Paul Poast, Matthias vom Hau and participants of the 50th LASA Congress for all the useful comments. I also thank the School of Arts and Sciences at Rutgers for granting me funds to collect part of the data used in this project. All errors are my own.}
+%\thanks{I thank Bob Kaufman, Dan Kelemen, Doug Blair, Paul Poast, Matthias vom Hau, Jose Pablo Silva and participants of the 50th LASA Congress for all the useful comments. I also thank the School of Arts and Sciences at Rutgers for granting me funds to collect part of the data used in this project and the Department of Political Science at Rutgers University for conference travel funds. All errors are my own.}
 \normalsize PhD Candidate $\bullet$ Political Science Dpt. $\bullet$ Rutgers University \\
 \normalsize \texttt{e:}\href{mailto:hector.bahamonde@rutgers.edu}{\texttt{hector.bahamonde@rutgers.edu}}\\
 \normalsize \texttt{w:}\href{http://www.hectorbahamonde.com}{\texttt{www.hectorbahamonde.com}}
@@ -777,9 +777,6 @@ texreg(cox3,
 \end{document}
 
 
-INCLUDE : Galindo-Silva2014
-
-
  Bob: 
  
   - I'd also like to see a bit more flesh on the bones when you talk about fiscal capacity -- perhaps in the Chilean case, if not more generally.  Presumably, you mean not only an income tax, but also an expansion of the bureaucracy that is supposed to monitor and collect it.    
@@ -788,7 +785,21 @@ INCLUDE : Galindo-Silva2014
 
  Me: 
 
- Put more meat/meaning to the Cox prediction/simulation plot. For ex., how much longer does it take for a country with ``low'' industrial development? Make sure I put concrete numbers in the Discussion section. CALCULATE THE FISCAL DEVELOOPMENT DELAY
+  - Put more meat/meaning to the Cox prediction/simulation plot. For ex., how much longer does it take for a country with ``low'' industrial development? Make sure I put concrete numbers in the Discussion section. CALCULATE THE FISCAL DEVELOOPMENT DELAY
+  - INCLUDE : Galindo-Silva2014
+  - Include DISTANCE measurement instead of separate covariates per each sector.
+  - (from Steave Levitsky's talk) Lack of state capacities UNDERMINES democracy: Channels are that democracy (1) reduce inequality, reduce gov't performance (NOT NECCESARILY I THINK), less programmatic parties.
+  - SUBNATIONAL: (from Raul Madrid and Juan Pablo's talk): idea that there are ``parallel universes''/``out-of-sync'' clusters of underdevelopment. MExico has more state capacities than before, but more disappearances too. MADRID: State capacities for WHOM. Also, DEMOCRACY is NECC but NOF SUFF for STATE CAPACITIES.
+  - From Jose Pablo Silva: (1) the state was competing for the “monopoly” of the capable/educated people (i.e. bureaucrats). I’ve read somewhere that the early Chilean state had a really hard time finding capable people, usually from the business sector, to be part of the gabinetes presidenciales. They would usually resign before accept the position. (2)  guys that were checking whether bureaucrats were actually working might work as a proxy for the impact of income tax on the formation of state, particularly, on the reformation of bureaucracies. (3) ``Intimate Ironies: Modernity and the Making of Middle-Class Lives in Brazil'' book, check for the case where Chilean/Brazilian bureaucrats checked other bureaucrats.
+
+Matthias vom Hau:
+
+  - My paper is ``against'' factor endowments.
+  - where does industrialization come from: is it endogenous to prior state capacities? 
+  - Check on Andreas Wimmer: he controls for ``prior'' state capacities. DOI: 10.1177/0010414015592645
+  - What's the distinction between POLITICAL and ECONOMIC power?: Be more explicit regarding this. 
+  - Engage with this literature that says that POWERFUL ELITES cause STATE CAPACITIES.
+  - 
 
 
 % Hence we focus our theory of the origins of fiscal capacities after the colonial period\footnote{\citet[p. 43]{Kurtz:2013aa} considers this period of time the ``first critical juncture''.}.
