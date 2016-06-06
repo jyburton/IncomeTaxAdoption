@@ -440,29 +440,30 @@ load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RD
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/l_clogit.RData") # Lagged CONSTANT AGR MANUFACT for clogit  (fixed effects)
 
 # Loading/Installing Library
-# install.packages("survival") 
-library(survival) # Cox Models
-
 # DO NOT TOUCH
+
 # Model with time-transformed variables
+library(survival) # install.packages("survival") 
 cox1.tt = coxph(Surv(year, incometax.s) ~ tt(constmanufact) + tt(constagricult) + cluster(country), 
                 data=cox, x=T
 )
 
 # DO NOT TOUCH
 # WORKING MODEL
+library(survival) # install.packages("survival") 
 cox2 = coxph(Surv(year, incometax.s) ~ log(constmanufact) + log(constagricult) + log(totpop) + cluster(country), 
              data=cox
 )
 
 # DO NOT TOUCH
 # LAGGED MODEL
+library(survival) # install.packages("survival") 
 cox.L = coxph(Surv(year, incometax.s) ~ log(constmanufact.L) + log(constagricult.L) + log(totpop) + cluster(country), 
               data=L.cox)
 
 
-library(geepack) # install.packages("geepack")
 ## logit GEE
+library(geepack) # install.packages("geepack")
 logitgee.1 = geeglm(incometax.d ~ log(constmanufact) + log(constagricult) + log(totpop), 
                     family = binomial, 
                     id = country, 
@@ -474,6 +475,7 @@ logitgee.1 = extract(logitgee.1)
 # DONT TOUCH
 # Recurrent Events: Income Tax AND Democracy
 # WORKING MODEL
+library(survival) # install.packages("survival") 
 cox2.ag = coxph(Surv(year, dem.tax) ~ log(constmanufact) + log(constagricult) + log(urbpop) + cluster(country), 
                 data=ag.data
 )
@@ -481,6 +483,7 @@ cox2.ag = coxph(Surv(year, dem.tax) ~ log(constmanufact) + log(constagricult) + 
 
 # DO NOT TOUCH
 # WORKING MODEL for clogit
+library(survival) # install.packages("survival")
 clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata(country), method= "efron", data = data)
 
 
