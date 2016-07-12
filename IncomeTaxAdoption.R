@@ -614,7 +614,7 @@ library(simPH)
 set.seed(602)
 sim3.m <- coxsimLinear(cox3, 
                        b = "constmanufact", 
-                       qi = "Relative Hazard",
+                       qi = "First Difference",
                        nsim = 2000,
                        spin = T,
                        Xj = seq(min(cox$constmanufact), max(cox$constmanufact), by=250)
@@ -622,9 +622,9 @@ sim3.m <- coxsimLinear(cox3,
 set.seed(602)
 sim3.a <- coxsimLinear(cox3, 
                        b = "constagricult", 
-                       qi = "Relative Hazard",
+                       qi = "First Difference",
                        nsim = 2000,
-                       spin = T,
+                       #spin = T,
                        Xj = seq(min(cox$constagricult), max(cox$constagricult), by=150)
 )
 
