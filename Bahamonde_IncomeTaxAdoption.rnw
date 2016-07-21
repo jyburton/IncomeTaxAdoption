@@ -782,6 +782,14 @@ texreg(cox3,
   - I'd also like to see a bit more flesh on the bones when you talk about fiscal capacity -- perhaps in the Chilean case, if not more generally.  Presumably, you mean not only an income tax, but also an expansion of the bureaucracy that is supposed to monitor and collect it.    
   - Did they reform the Finance Ministry, for example, or add to the tax agency budget? 
 
+  - you should lay out more clearly the interests of both the commercial/manufacturing sector and the dominant landowning class.  You do this, but it is presented in a scattered way, with almost all of the initial emphasis on the calculus of the landowners.  I think it will read much more clearly if you present this in a more symmetrical fashion. More generally, it is difficult to follow the logical flow and sequence of your theoretical presentation.
+
+  - There are also some issues with the causal flow of the story.  You say that the passing of the income tax creates an incentive for increasing administrative capacity, but then later you say that manufacturers accept a tax because of quasi-voluntary compliance (ie. that the state can credibly commit to collect the tax fairly from others.  So, are the tax and administrative reforms concurrent -- or does one follow or precede the other?  You need to clarify your assumptions here.
+
+  - Relatedly, I am confused by your observation that mercantilism and protectionism also requires state capacity -- just the wrong kind?  Somehow, you need to clarify what you are getting at here.
+
+  -  The challenge they pose for you is that they situate the "critical juncture" in their stories at the end of the colonial period before the class compromises that you identify, and (in Kurtz's case) during the incorporation of the middle-sector (after the class compromises you describe).  So, you need to figure out what to say about this.  One possibility is to argue that critical juncture/path dependence approaches are inadequate unless they also capture important causal influences(ie., class compromises)  that occur subsequent to the critical juncture and alter or sustain the path. In this respect, your claims about the role of class compromise might be presented as a an important complement to their approaches.  Or, you might either use the Chilean case or try to build in controls in your statistical analysis to show that the Kurtz/Soiffer emphasis on early post-colonial critical junctures do not fully explain the trajectories of state development.  In any case, you need to confront these theories in a more systematic and coherent way.
+
 
  Me: 
 
