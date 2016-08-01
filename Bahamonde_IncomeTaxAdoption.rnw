@@ -154,7 +154,7 @@
 \author[1]{
 \large
 \textsc{H\'ector Bahamonde}\\ 
-%\thanks{I thank Bob Kaufman, Dan Kelemen, Doug Blair, Paul Poast, Matthias vom Hau, Jose Pablo Silva and participants of the 50th LASA Congress for all the useful comments. I also thank the School of Arts and Sciences at Rutgers for granting me funds to collect part of the data used in this project and the Department of Political Science at Rutgers University for conference travel funds. All errors are my own.}
+%\thanks{I thank Bob Kaufman, Dan Kelemen, Doug Blair, David Darmofal, Paul Poast, Matthias vom Hau, Jose Pablo Silva and participants of the 50th LASA Congress for all the useful comments. I also thank the School of Arts and Sciences at Rutgers for granting me funds to collect part of the data used in this project and the Department of Political Science at Rutgers University for conference travel funds. All errors are my own.}
 \normalsize PhD Candidate $\bullet$ Political Science Dpt. $\bullet$ Rutgers University \\
 \normalsize \texttt{e:}\href{mailto:hector.bahamonde@rutgers.edu}{\texttt{hector.bahamonde@rutgers.edu}}\\
 \normalsize \texttt{w:}\href{http://www.hectorbahamonde.com}{\texttt{www.hectorbahamonde.com}}
@@ -243,9 +243,10 @@ Weak states not only have to overcome the lack of administrative skills to colle
   % (4) LA did not have an industrial revolution
 
 % HERE
+%% INTRODUCE Gerring2011, Wimmer2015a // Linkear with Lange2006
 
 % (1)
-Some precisions are needed. Though we argue that inter-elite compromises set the tone of the 19th century oligarchic republics, a simple association between bureaucratization, or more general, institutional development, and political aperture would be incorrect. As \citet[p. 26]{Mahoney:2010aa} suggests, there is a negative association between ``mercantilist institutions'' (which required developed bureaucracies) and political development. For example, Per\'u had very strong ``mercantilist institutions'', and as a consequence it developed low-quality political institutions. Similarly, \citet{Acemoglu:2002uh} explain how colonial mercantilist countries show little economic growth\footnote{We propose a roughly simultaneous process. However, \citet[p. 43]{Rota2011a} suggests a different timing. He explains that ``[t]he modernization of bureaucracy \emph{preceded} the process of democratization''. Emphasis is mine.}. This paper explains the origins of income taxation and how it played an important role in the formation of national states \emph{after} the independence, particularly, during the implementation of the liberal political projects. 
+Some precisions are needed. Though we argue that inter-elite challenging and eventual inter-elite compromises played a role in the institutional investments that took place in the 19th century, a simple association between bureaucratization and inter-elite political aperture would be incorrect. As \citet[p. 26]{Mahoney:2010aa} suggests, there is a negative association between ``mercantilist institutions'' (which did require developed bureaucracies) and political development. For example, Per\'u had very strong ``mercantilist institutions'', and as a consequence it developed low-quality political institutions. Similarly, \citet{Acemoglu:2002uh} explain how colonial mercantilist countries show little economic growth\footnote{We propose a roughly simultaneous process. However, \citet[p. 43]{Rota2011a} suggests a different timing. He explains that ``[t]he modernization of bureaucracy \emph{preceded} the process of democratization''. Emphasis is mine.}. This paper explains the origins of income taxation and how it played an important role in the formation of national states \emph{after} the independence, particularly, during the implementation of the liberal political projects. 
 
 % (2)
 Second, bureaucratization \emph{per se} does not cause state capacities either. On the one hand, \citet[]{Soifer} explains that ``local'' bureaucrats (as opposed to central/state bureaucrats) carried their own agendas, undermining the state consolidation process at the local level. Acknowledging this, this paper rather focuses on the formative role structural transformations had on \emph{modern} bureaucracies, (i.e. post-``industrial'') bureaucracies, and such it broadly builds on \citet[]{ODonnell1973}, \citet[]{Lipset:1981uq} and  \citet[]{Przeworski1993,Przeworski1997}. Particularly, we explain how industrialization helped to create institutional order, and ultimately, ``state capacities'' in post colonial Latin America. On the other hand, \citet[p. 45]{Evans:1995xy} argues that conventional dichotomies like ``strong'' versus ``weak'' mislabel any theory of the state. For example, predatory states (i.e., non-democracies) usually have very skilled bureaucracies. However, in our theory, bureaucracies (at least for the ``strong'' capacity cases) are product of a process of inter-elite \emph{contestation}. The lack of monopolistic rule (i.e., the presence of inter-elite political contestation) is what brings skilled and semi-independent bureaucracies to life. This distinction is important since most predatory states are usually ruled by a monopolistic ruler (party, leader, sector, etc.). 
@@ -547,6 +548,17 @@ We estimate all models using the \href{http://moxlad-staging.herokuapp.com/home/
 
 \subsection{Results}
 
+
+{\color{red}INCLUDE  FRAILTY MODELS, CONTROL FOR HETEROGENEITY AND EVENT-DEPENDENCE: Box-Steffensmeier2007 p 240, Box-Steffensmeier2006a, Box-Steffensmeier2006b, Box-Steffensmeier2014, Andersen1982: ``which is the Cox model with robust standard errors'' (according to Box-Steffensmeier2014:p. 2); \\
+Include Lange2006 p. 1426 (p. 16) variable on prior levels of pre-colonial development. It has 3 categories. Put it as factor as control variable.\\
+
+Include Kurtz2009 in the tax section. \\
+
+Include Soifer2013a in the democracy/redistribution/tax capacity section: Makes an important point to the distribution and regime type literature. Argument is that distribution requires state capacities. 
+``the relationship between inequality and democracy is conditional on the strength of the state: where the state is strong, inequality shapes the emergence and stability of democratic and authoritarian regimes in ways consonant with our theories. But where the state is weak, inequality has no effect on regime type. This shows that in weak state contexts, the origins of democ- racy and dictatorship are not fundamentally economic''
+
+}
+
 <<function, echo=FALSE, comment=NA, warning=FALSE, message=F,results='hide', cache=TRUE>>=
 library(texreg) # install.packages("texreg")
 library(methods)
@@ -806,6 +818,7 @@ texreg(cox3,
   - Factor Analyses / PCA to measure the two dimensionality of the congress in terms of industyr and agriculture.
 
   - CHECK: 
+  	- ``Latin American Bureaucracy and the State Building Process (1780-1860)''
   	- TANZI, V. “Personal Income Taxation in Latin America: Obstacles and Possibilities”, National Tax Journal (1966)
   	- WRIGHT, THOMAS C., "The Politics of Inflation in Chile, 1888–1918", Hispanic American Historical Review, num. 53, mayo de 1973, pp. 239–259.   
   	- WRIGHT, THOMAS C., "Agriculture and Protectionism in Chile, 1880–1930", Journal of Latin American Studies, num. 7, mayo de 1975, pp. 45–58.     
@@ -818,7 +831,11 @@ Matthias vom Hau:
 
   - My paper is ``against'' factor endowments.
   - where does industrialization come from: is it endogenous to prior state capacities? 
+      ---- Include Lange2006 p. 1426 (p. 16) variable on prior levels of pre-colonial development. It has 3 categories. Put it as factor as control variable.
+  
   - Check on Andreas Wimmer: he controls for ``prior'' state capacities. DOI: 10.1177/0010414015592645
+    ------  see above comment
+
   - What's the distinction between POLITICAL and ECONOMIC power?: Be more explicit regarding this. 
   - Engage with this literature that says that POWERFUL ELITES cause STATE CAPACITIES.
   - 
@@ -862,3 +879,5 @@ Matthias vom Hau:
 %\citet[p. 311]{Bulmer-Thomas2003}: ``The expropriation, with or without compensation, of nonland assets provided an alternative, if even more radical, route to changing the distribution of income. Although nationalizations have not been uncommon in Latin America, they have mainly affected foreign companies''
 
 % In fact, after income taxes were imposed, ``the revenue motivation for imposing trade taxes declined''\footnote{\citet[p. 55]{Lederman2005}.}. 
+
+
