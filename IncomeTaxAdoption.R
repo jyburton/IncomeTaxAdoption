@@ -1,4 +1,4 @@
-#######################################################
+########################################################
 # Data Prep
 #######################################################
 
@@ -454,6 +454,57 @@ library(survival) # install.packages("survival")
 cox2 = coxph(Surv(year, incometax.s) ~ log(constmanufact) + log(constagricult) + log(totpop) + cluster(country), 
              data=cox
 )
+
+
+######################################################################
+## TESTING HERE
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/cox.RData") # Cox
+
+# prelims
+library(survival) # install.packages("survival") 
+library(frailtypack) # install.packages("frailtypack") 
+
+cox$year2 = cox$year+1
+cox$greater <- as.numeric(log(cox$constmanufact) >= log(cox$constagricult))
+
+options(scipen=999)
+
+
+#########################
+# descriptives
+
+surv.object = Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
+summary(survfit(surv.object~1))
+
+plot(survfit(surv.object~1, conf.type="none")) # What?
+
+# by "treatment" condition
+timestrata.surv <- survfit(surv.object~ strata(greater), cox, conf.type="log-log")
+plot(timestrata.surv, lty=c(1,3), xlab="Time", ylab="Survival Probability")
+legend(40, 1.0, c("Industry High - No", "Industry High - Yes") , lty=c(1,3) )
+# problem is that only ONE country is high=1 (Chile). 
+
+#########################
+# unmodeled country heterogeneity
+
+cox.m = coxph(surv.object ~ constmanufact + constagricult + cluster(country), data=cox)
+
+plot(survfit(cox.m))
+
+#########################
+# CONDITIONAL FRAILTY MODEL
+
+cox.fra = coxph(surv.object ~ constmanufact + constagricult + frailty(country, distribution="gamma", method="em"), data=cox)
+## bad warning?
+## and same results as unmodeled heter. model?
+
+plot(survfit(cox.m))
+# bad fit/theory/model/data ?
+
+
+
+
+######################################################################
 
 # DO NOT TOUCH
 # LAGGED MODEL
