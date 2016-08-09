@@ -286,7 +286,7 @@ Our argument comes in four parts for both the ``weak'' and ``strong'' state case
 \paragraph{Weak State Cases} Similarly, these states were governed by agricultural monopolistic elites too. However, in the weak state cases,  agricultural incumbents faced a slower industrial sector. Consequently, industrial outputs did not promise enough resources to tax from in the long run. It was too risky to ``wait'' and tax those resources in the future. Hence, incumbents were better off expropriating the small industrial output in the short run. The agricultural political monopoly was not challenged, the traditional economy was not broken and the endogenous incentives to invest in institutions designed to improve bureaucracies and split political power never existed. 
 
 
-% {\color{white}TABLE-GRAPH HERE}
+% {\color{red}TABLE-GRAPH HERE}
 
 % (1) Latin American states were governed by agricultural monopolistic elites
 \subsection{Agricultural Monopoly}
@@ -541,7 +541,7 @@ Economic and political concessions had the expected outcomes on the formation of
 }. Eventually, as the relative size of the industrial sector increased, industrial elites were able to gain ground in politics, managing to impose other important institutions such as the secret ballot. This institutional modification came to correct a long-standing situation that had had precluded industrialists compete on equal terms with the agricultural incumbents. As \citet[p. 1749]{Baland2008} argue, ``[t]he introduction of the secret ballot had an immediate impact on the balance of political power in Chile [as] landowners could no longer effectively control the votes of rural labor''. 
 
 
-{\color{white}WORK HERE FIRST}
+{\color{red}WORK HERE FIRST}
 
 \section{Econometric Analyses\label{methods}}
 
@@ -554,13 +554,26 @@ We estimate all models using the \href{http://moxlad-staging.herokuapp.com/home/
 \subsection{Results}
 
 
-{\color{white}INCLUDE  FRAILTY MODELS, CONTROL FOR HETEROGENEITY AND EVENT-DEPENDENCE: p 240, Box-Steffensmeier2006a, Box-Steffensmeier2006b, Box-Steffensmeier2014, Andersen1982: ``which is the Cox model with robust standard errors'' (according to Box-Steffensmeier2014:p. 2); \\
+{\color{red}INCLUDE  FRAILTY MODELS, CONTROL FOR HETEROGENEITY AND EVENT-DEPENDENCE: p 240, Box-Steffensmeier2006a, Box-Steffensmeier2006b, Box-Steffensmeier2014, Andersen1982: ``which is the Cox model with robust standard errors'' (according to Box-Steffensmeier2014:p. 2); \\
 Include Lange2006 p. 1426 (p. 16) variable on prior levels of pre-colonial development. It has 3 categories. Put it as factor as control variable.\\
+
+Better not to include frailty, since these are countries and not a sample from a larger population. That is, Colombia is not a sample of all posible colombias. 
 
 Include Kurtz2009 in the tax section. \\
 
 Include Soifer2013a in the democracy/redistribution/tax capacity section: Makes an important point to the distribution and regime type literature. Argument is that distribution requires state capacities. 
 ``the relationship between inequality and democracy is conditional on the strength of the state: where the state is strong, inequality shapes the emergence and stability of democratic and authoritarian regimes in ways consonant with our theories. But where the state is weak, inequality has no effect on regime type. This shows that in weak state contexts, the origins of democ- racy and dictatorship are not fundamentally economic''
+
+include [survival:plot] as the ``dependent variable''. Make the argument that it's not really about time. Faster industrialization does cause countries to implement the income tax law earlier. Motivate this graph to rule out ``supurious duration dependence'' (not sure if this is the correct term, though) (survival is separate from T itself : my variables accelerate failure).
+
+GEE doesn't model time. Y_i is only linear to X_i, and the hazard is assumed to be flat. It does not model time dependence!!! // no temporal dependence. Include this discussion for the non-cox models. THis should apply for GEE and Cond. Logit. INCLUDE Carter2010 PAPER WHERE THEY INCLUDE POLINOMIALS FOR THE TIME VARIABLE (SEE DAY 4 ADV MLE ZORN SLIDES) - THEY INCLUDE POLYNOMIALS FOR THE TIME TREND. 
+
+Given this GEE ``problem'' (hazards are not flat), consider estimate a Weibull with ``shape(VARIABLE)'' (think of a variable that has not linear effects in failure) to model time dependence.
+
+include a substantive interpretation of the hazard ratios (ver slides the Zorn, y como lo calcula - primera semana de clase.)
+
+Also, see my own discussion on the correlation structure of the GEE in my Brazilian paper. Make sure that I have the corr. structurure that is appropiated to panel data.
+
 
 }
 

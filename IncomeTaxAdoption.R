@@ -61,6 +61,10 @@ democracy.d = data.frame(aux2.d, democracy.d)
 data = merge(democracy.d, data, by=c("country", "year"))
 colnames(data)[3] = "democracy.d"
 
+## generate year2 variable, which is the "end" time.
+data$year2 = data$year+1
+
+
 ## Saving Data
 save(data, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # in paper's folder
 
@@ -146,6 +150,10 @@ cox.L = cox.L[!is.na(cox.L$constagricult.L),]
 # The lag was eliminating the incometax.s=1's, so I do "year+1" to "update" the years
 cox.L$year = cox.L$year+1
 
+# sum one more to year2
+cox.L$year2 = cox.L$year2+1
+
+
 # Then I constructed the l.incometax.s.COUNTRY var again...
 L.incometax.s.chile = data.frame(ifelse(cox.L$year==1924 & cox.L$country == "Chile",1,0)) # Chile,  1924 (Mamalakis [1976, p. 20]
 L.incometax.s.colombia  = data.frame(ifelse(cox.L$year==1935 & cox.L$country == "Colombia",1,0)) # Colombia, Ley 78 Figueroa2008a, p. 9.
@@ -178,6 +186,9 @@ colnames(L.cox)[3] = "incometax.s"
 
 # Transforming data
 a= log(L.cox$constmanufact.L)
+
+
+
 
 ## Saving Data
 save(L.cox, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/L_cox.RData") # in paper's folder
@@ -386,11 +397,169 @@ save(L.clogit, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAd
 #### test2= data.frame(L.clogit$country, L.clogit$year, L.clogit$constmanufact.L, L.clogit$constmanufact, L.clogit$constagricult.L, L.clogit$constagricult)
 ##### IT WORKS
 
+##################################################
+##              PLOTTING DEPENDENT VARIABLE
+## [survival:plot]
+##################################################
+
+
+# generate Proximity var.
+cox$Proximity <- as.numeric(cox$constmanufact + (cox$constmanufact*.5) >= cox$constagricult)
+
+library(plyr)
+cox$Proximity <- mapvalues(cox$Proximity, from = c("0", "1"), to = c("Low", "High"))
+
+
+# plot ggsurv function
+ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
+                   cens.col = 'red', lty.est = 1, lty.ci = 2,
+                   cens.shape = 3, back.white = F, xlab = 'Time',
+                   ylab = 'Survival', main = ''){
+  
+  library(ggplot2)
+  strata <- ifelse(is.null(s$strata) ==T, 1, length(s$strata))
+  stopifnot(length(surv.col) == 1 | length(surv.col) == strata)
+  stopifnot(length(lty.est) == 1 | length(lty.est) == strata)
+  
+  ggsurv.s <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
+                       cens.col = 'red', lty.est = 1, lty.ci = 2,
+                       cens.shape = 3, back.white = F, xlab = 'Time',
+                       ylab = 'Survival', main = ''){
+    
+    dat <- data.frame(time = c(0, s$time),
+                      surv = c(1, s$surv),
+                      up = c(1, s$upper),
+                      low = c(1, s$lower),
+                      cens = c(0, s$n.censor))
+    dat.cens <- subset(dat, cens != 0)
+    
+    col <- ifelse(surv.col == 'gg.def', 'black', surv.col)
+    
+    pl <- ggplot(dat, aes(x = time, y = surv)) +
+      xlab(xlab) + ylab(ylab) + ggtitle(main) +
+      geom_step(col = col, lty = lty.est)
+    
+    pl <- if(CI == T | CI == 'def') {
+      pl + geom_step(aes(y = up), color = col, lty = lty.ci) +
+        geom_step(aes(y = low), color = col, lty = lty.ci)
+    } else (pl)
+    
+    pl <- if(plot.cens == T & length(dat.cens) > 0){
+      pl + geom_point(data = dat.cens, aes(y = surv), shape = cens.shape,
+                      col = cens.col)
+    } else if (plot.cens == T & length(dat.cens) == 0){
+      stop ('There are no censored observations')
+    } else(pl)
+    
+    pl <- if(back.white == T) {pl + theme_bw()
+    } else (pl)
+    pl
+  }
+  
+  ggsurv.m <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
+                       cens.col = 'red', lty.est = 1, lty.ci = 2,
+                       cens.shape = 3, back.white = F, xlab = 'Time',
+                       ylab = 'Survival', main = '') {
+    n <- s$strata
+    
+    groups <- factor(unlist(strsplit(names
+                                     (s$strata), '='))[seq(2, 2*strata, by = 2)])
+    gr.name <-  unlist(strsplit(names(s$strata), '='))[1]
+    gr.df <- vector('list', strata)
+    ind <- vector('list', strata)
+    n.ind <- c(0,n); n.ind <- cumsum(n.ind)
+    for(i in 1:strata) ind[[i]] <- (n.ind[i]+1):n.ind[i+1]
+    
+    for(i in 1:strata){
+      gr.df[[i]] <- data.frame(
+        time = c(0, s$time[ ind[[i]] ]),
+        surv = c(1, s$surv[ ind[[i]] ]),
+        up = c(1, s$upper[ ind[[i]] ]),
+        low = c(1, s$lower[ ind[[i]] ]),
+        cens = c(0, s$n.censor[ ind[[i]] ]),
+        group = rep(groups[i], n[i] + 1))
+    }
+    
+    dat <- do.call(rbind, gr.df)
+    dat.cens <- subset(dat, cens != 0)
+    
+    pl <- ggplot(dat, aes(x = time, y = surv, group = group)) +
+      xlab(xlab) + ylab(ylab) + ggtitle(main) +
+      geom_step(aes(col = group, lty = group))
+    
+    col <- if(length(surv.col == 1)){
+      scale_colour_manual(name = gr.name, values = rep(surv.col, strata))
+    } else{
+      scale_colour_manual(name = gr.name, values = surv.col)
+    }
+    
+    pl <- if(surv.col[1] != 'gg.def'){
+      pl + col
+    } else {pl + scale_colour_discrete(name = gr.name)}
+    
+    line <- if(length(lty.est) == 1){
+      scale_linetype_manual(name = gr.name, values = rep(lty.est, strata))
+    } else {scale_linetype_manual(name = gr.name, values = lty.est)}
+    
+    pl <- pl + line
+    
+    pl <- if(CI == T) {
+      if(length(surv.col) > 1 && length(lty.est) > 1){
+        stop('Either surv.col or lty.est should be of length 1 in order
+             to plot 95% CI with multiple strata')
+      }else if((length(surv.col) > 1 | surv.col == 'gg.def')[1]){
+        pl + geom_step(aes(y = up, color = group), lty = lty.ci) +
+          geom_step(aes(y = low, color = group), lty = lty.ci)
+      } else{pl +  geom_step(aes(y = up, lty = group), col = surv.col) +
+          geom_step(aes(y = low,lty = group), col = surv.col)}
+    } else {pl}
+    
+    
+    pl <- if(plot.cens == T & length(dat.cens) > 0){
+      pl + geom_point(data = dat.cens, aes(y = surv), shape = cens.shape,
+                      col = cens.col)
+    } else if (plot.cens == T & length(dat.cens) == 0){
+      stop ('There are no censored observations')
+    } else(pl)
+    
+    pl <- if(back.white == T) {pl + theme_bw()
+    } else (pl)
+    pl
+  }
+  pl <- if(strata == 1) {ggsurv.s(s, CI , plot.cens, surv.col ,
+                                  cens.col, lty.est, lty.ci,
+                                  cens.shape, back.white, xlab,
+                                  ylab, main)
+  } else {ggsurv.m(s, CI, plot.cens, surv.col ,
+                   cens.col, lty.est, lty.ci,
+                   cens.shape, back.white, xlab,
+                   ylab, main)}
+  pl
+}
+
+
+
+
+# generate survival object
+surv.object = Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
+
+# plot
+ggsurv(survfit(surv.object~Proximity, cox, conf.type="none")) + 
+  theme_bw() + 
+  theme(
+    legend.key = element_rect(colour = NA, fill = NA, size = 0.5),
+    panel.margin = unit(0, "lines"),
+    axis.title.x = element_text(colour = "black")) + 
+  xlab("Year") +
+  guides(fill = guide_legend(title = "LEFT"))
+
 
 ##################################################
 ##              MODELS 1
 ## [results:1]
 ##################################################
+rm(list=ls())
+cat("\014")
 
 
 ##################################################
@@ -426,11 +595,9 @@ extract.geepack <- function(model) {
 
 setMethod("extract", signature = className("geeglm", "geepack"),
           definition = extract.geepack)
+
+
 ##################################################
-
-rm(list=ls())
-cat("\014")
-
 # Load Datasets
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/cox.RData") # Cox
@@ -439,69 +606,33 @@ load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/logitgee.R
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RData") # For Multiple Non Competing Hazard Ratios
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/l_clogit.RData") # Lagged CONSTANT AGR MANUFACT for clogit  (fixed effects)
 
-# Loading/Installing Library
-# DO NOT TOUCH
 
+
+# DO NOT TOUCH
 # Model with time-transformed variables
 library(survival) # install.packages("survival") 
-cox1.tt = coxph(Surv(year, incometax.s) ~ tt(constmanufact) + tt(constagricult) + cluster(country), 
-                data=cox, x=T
-)
+cox1.tt = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
+ ~ tt(constmanufact) + tt(constagricult) + cluster(country), data=cox)
 
 # DO NOT TOUCH
 # WORKING MODEL
 library(survival) # install.packages("survival") 
-cox2 = coxph(Surv(year, incometax.s) ~ log(constmanufact) + log(constagricult) + log(totpop) + cluster(country), 
-             data=cox
-)
+cox2 = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
+ ~ log(constmanufact) + log(constagricult) + cluster(country), data=cox)
 
 
 ######################################################################
-## TESTING HERE
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/cox.RData") # Cox
+#### HERE / TEST/ TESTING / PENDING
 
-# prelims
-library(survival) # install.packages("survival") 
-library(frailtypack) # install.packages("frailtypack") 
+### instead of frailty, try FIXED EFFECTS or Zorn's suggestion:
+### cumulative variable with the count of countries that have implemented
+### the income tax law. At the beggining all of them are 0, then Chile puts
+### a 1 in all of them, once it does, Chile gets out of the sample
+### but the zero stays there. Then, the second country adds another 1, summing
+### 2,...etc...etc.
+### It might be a good idea to square it. 
 
-cox$year2 = cox$year+1
-cox$greater <- as.numeric(log(cox$constmanufact) >= log(cox$constagricult))
-
-options(scipen=999)
-
-
-#########################
-# descriptives
-
-surv.object = Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
-summary(survfit(surv.object~1))
-
-plot(survfit(surv.object~1, conf.type="none")) # What?
-
-# by "treatment" condition
-timestrata.surv <- survfit(surv.object~ strata(greater), cox, conf.type="log-log")
-plot(timestrata.surv, lty=c(1,3), xlab="Time", ylab="Survival Probability")
-legend(40, 1.0, c("Industry High - No", "Industry High - Yes") , lty=c(1,3) )
-# problem is that only ONE country is high=1 (Chile). 
-
-#########################
-# unmodeled country heterogeneity
-
-cox.m = coxph(surv.object ~ constmanufact + constagricult + cluster(country), data=cox)
-
-plot(survfit(cox.m))
-
-#########################
-# CONDITIONAL FRAILTY MODEL
-
-cox.fra = coxph(surv.object ~ constmanufact + constagricult + frailty(country, distribution="gamma", method="em"), data=cox)
-## bad warning?
-## and same results as unmodeled heter. model?
-
-plot(survfit(cox.m))
-# bad fit/theory/model/data ?
-
-
+## This kind of variable I guess is the "tt" term in the coxph package.
 
 
 ######################################################################
@@ -509,8 +640,8 @@ plot(survfit(cox.m))
 # DO NOT TOUCH
 # LAGGED MODEL
 library(survival) # install.packages("survival") 
-cox.L = coxph(Surv(year, incometax.s) ~ log(constmanufact.L) + log(constagricult.L) + log(totpop) + cluster(country), 
-              data=L.cox)
+cox.L = coxph(Surv(L.cox$year, L.cox$year2, L.cox$incometax.s, origin=1901)
+ ~ log(constmanufact.L) + log(constagricult.L) + cluster(country), data=L.cox)
 
 
 ## logit GEE
@@ -518,7 +649,7 @@ library(geepack) # install.packages("geepack")
 logitgee.1 = geeglm(incometax.d ~ log(constmanufact) + log(constagricult) + log(totpop), 
                     family = binomial, 
                     id = country, 
-                    corstr = "exchangeable",
+                    corstr = "independence",
                     data = logitgee)
 logitgee.1 = extract(logitgee.1)
 
@@ -527,9 +658,7 @@ logitgee.1 = extract(logitgee.1)
 # Recurrent Events: Income Tax AND Democracy
 # WORKING MODEL
 library(survival) # install.packages("survival") 
-cox2.ag = coxph(Surv(year, dem.tax) ~ log(constmanufact) + log(constagricult) + log(urbpop) + cluster(country), 
-                data=ag.data
-)
+cox2.ag = coxph(Surv(ag.data$year, ag.data$year2, ag.data$dem.tax, origin=1900) ~ log(constmanufact) + log(constagricult) + cluster(country), data=ag.data)
 
 
 # DO NOT TOUCH
@@ -540,7 +669,7 @@ clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata
 
 
 # screenreg / texreg
-texreg(
+screenreg(
         list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1),
         caption = "Structural Origins of Income Taxation: Income Tax Law and Democratic Development",
         custom.coef.names = c(
@@ -548,11 +677,11 @@ texreg(
                 "Agricultural Output$_{tt}$",
                 "Manufacture Output  (ln)",
                 "Agricultural Output (ln)",
-                "Total Population  (ln)",
                 "Manufacture Output$_{t-1}$  (ln)",
                 "Agricultural Output$_{t-1}$  (ln)",
                 "Urban Population  (ln)",
-                "(intercept)"
+                "(intercept)",
+                "Total Population  (ln)"
         ),
         custom.model.names = c(
                 "Cox-PH: Time Transformed",
@@ -639,9 +768,13 @@ termplot(cox1.splines, term=2, se=TRUE)
 # load library
 library(survival)
 # I use this one for simulation (since it seems that the sim function doesn't take well natural logs)
-cox3 = coxph(Surv(year, incometax.s) ~ constmanufact + constagricult + totpop + cluster(country), 
-             data=cox
-)
+cox3 = coxph(
+  Surv(cox$year, cox$year2, cox$incometax.s, origin=1900) ~ 
+    constmanufact + 
+    constagricult + 
+    cluster(country), 
+  data=cox
+  )
 
 library(texreg) # install.packages("texreg")
 texreg(cox3,
