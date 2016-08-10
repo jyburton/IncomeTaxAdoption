@@ -635,6 +635,90 @@ cox2 = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
 ## This kind of variable I guess is the "tt" term in the coxph package.
 
 
+##### QUESTIONS
+
+###### DO I HAVE TO COUNT EVENTS AS 0-0-0-1-0-0-... OR
+###### 0-0-0-1-1-1-1-1 ?
+
+###### IS THE DATA RIGHT?
+
+
+## WLW (Zorn's Day 6, competing events)
+
+rm(list=ls())
+cat("\014")
+setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
+
+
+# load data
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RData")
+
+
+
+
+
+
+
+
+# dur.dep data organization
+dur.dep = ag.data 
+
+dur.dep<-dur.dep[order(dur.dep$country,dur.dep$year),]
+
+dur.dep$one<-rep(1,times=nrow(dur.dep))
+
+library(plyr)
+dur.dep<- ddply(dur.dep,"country",mutate,eventno=cumsum(dem.tax)+1,altstart=cumsum(one)-1,altstop=cumsum(one))
+
+
+# wlw model
+## data prep
+wlw = dur.dep
+wlw<-wlw[rep(1:nrow(wlw),each=max(wlw$eventno)),]
+
+wlw<-ddply(wlw,c("country","year"),mutate, eventrisk=cumsum(one))
+
+wlw$dem.tax<-ifelse(wlw$eventno==wlw$eventrisk & wlw$dem.tax==1,1,0)
+
+## model
+library(survival)
+wlw.S<-Surv(wlw$altstart, wlw$altstop, wlw$dem.tax)
+
+coxph(wlw.S ~ constmanufact + constagricult + strata(eventno) + cluster(country), data=wlw, method="efron")
+
+
+
+## time varying parameters model
+dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
+
+dur.dep$manXevent<-dur.dep$constmanufact*dur.dep$eventno
+dur.dep$agrXevent<-dur.dep$constagricult*dur.dep$eventno
+
+coxph(dur.dep.t.v.S~ 
+        log(manXevent) +
+        log(agrXevent) + 
+        #customtax + 
+        strata(eventno) + 
+        cluster(country),
+      data=dur.dep,
+      method="efron")
+
+
+
+# gap time
+dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
+
+coxph(dur.dep.t.v.S~ 
+        log(constmanufact) +
+        log(constagricult) + 
+        #customtax + 
+        strata(eventno) + 
+        cluster(country),
+      data=dur.dep,
+      method="efron")
+
+
+
 ######################################################################
 
 # DO NOT TOUCH

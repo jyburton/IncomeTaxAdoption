@@ -572,8 +572,9 @@ Given this GEE ``problem'' (hazards are not flat), consider estimate a Weibull w
 
 include a substantive interpretation of the hazard ratios (ver slides the Zorn, y como lo calcula - primera semana de clase.)
 
-Also, see my own discussion on the correlation structure of the GEE in my Brazilian paper. Make sure that I have the corr. structurure that is appropiated to panel data.
+Also, see my own discussion on the correlation structure of the GEE in my Brazilian paper. Make sure that I have the corr. structure that is appropriated to panel data.
 
+DO NOT use Andersen-Gill: events are assumed to be INDEPENDENT. I argue the exact opposite: TAXATION and DemOCRACY are linked/correlated. See slides DAY 6 Zorn and ``Elapsed'' / ``Gap'' time models. (Events have different baseline hazards). Consider ``Marginal (WLW)'' model: you're at risk for semi simultaneous time - events start to pop up, they happen sequentially, but the risk happens more or simultaneously (i think this is the ``best'' model -- cancer example.
 
 }
 
