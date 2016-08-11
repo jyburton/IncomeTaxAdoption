@@ -694,29 +694,43 @@ dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
 dur.dep$manXevent<-dur.dep$constmanufact*dur.dep$eventno
 dur.dep$agrXevent<-dur.dep$constagricult*dur.dep$eventno
 
+options(scipen = 999) # bias against scientific notation
+
+
 coxph(dur.dep.t.v.S~ 
         log(manXevent) +
         log(agrXevent) + 
-        #customtax + 
+        log(exports) + 
         strata(eventno) + 
         cluster(country),
       data=dur.dep,
       method="efron")
 
+
+# elapsed time
+dur.dep.elap.t.S<-Surv(dur.dep$altstart, dur.dep$altstop, dur.dep$dem.tax)
+
+coxph(dur.dep.elap.t.S ~ 
+        constmanufact +
+        constagricult + 
+        strata(eventno) + 
+        cluster(country), 
+      data=dur.dep,
+      method="efron")
 
 
 # gap time
+library(survival)
+
 dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
 
 coxph(dur.dep.t.v.S~ 
-        log(constmanufact) +
-        log(constagricult) + 
-        #customtax + 
+        constmanufact +
+        constagricult + 
         strata(eventno) + 
         cluster(country),
       data=dur.dep,
       method="efron")
-
 
 
 ######################################################################
