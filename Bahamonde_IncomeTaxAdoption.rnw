@@ -156,7 +156,6 @@
 \textsc{H\'ector Bahamonde}\\ 
 
 %\thanks{I thank Bob Kaufman, Dan Kelemen, Doug Blair, David Darmofal, Christopher Zorn, Paul Poast, Matthias vom Hau, Jose Pablo Silva and participants of the 50th LASA Congress for all the useful comments. I also thank the School of Arts and Sciences at Rutgers for granting me funds to collect part of the data used in this project and the Department of Political Science at Rutgers University for conference travel funds. All errors are my own.}
->>>>>>> Stashed changes
 \normalsize PhD Candidate $\bullet$ Political Science Dpt. $\bullet$ Rutgers University \\
 \normalsize \texttt{e:}\href{mailto:hector.bahamonde@rutgers.edu}{\texttt{hector.bahamonde@rutgers.edu}}\\
 \normalsize \texttt{w:}\href{http://www.hectorbahamonde.com}{\texttt{www.hectorbahamonde.com}}
@@ -577,6 +576,8 @@ include a substantive interpretation of the hazard ratios (ver slides the Zorn, 
 Also, see my own discussion on the correlation structure of the GEE in my Brazilian paper. Make sure that I have the corr. structure that is appropriated to panel data.
 
 DO NOT use Andersen-Gill: events are assumed to be INDEPENDENT. I argue the exact opposite: TAXATION and DemOCRACY are linked/correlated. See slides DAY 6 Zorn and ``Elapsed'' / ``Gap'' time models. (Events have different baseline hazards). Consider ``Marginal (WLW)'' model: you're at risk for semi simultaneous time - events start to pop up, they happen sequentially, but the risk happens more or simultaneously (i think this is the ``best'' model -- cancer example.
+
+include \citet[57]{Kurtz:2013aa}, and how he contests the notion that regime type and state-building processes run through different channels. He criticizes, for ex., the measurement of state capacity using ``property rights protection''.
 
 }
 
