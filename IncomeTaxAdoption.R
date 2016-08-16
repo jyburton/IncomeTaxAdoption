@@ -640,7 +640,15 @@ cox2 = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
 ###### DO I HAVE TO COUNT EVENTS AS 0-0-0-1-0-0-... OR
 ###### 0-0-0-1-1-1-1-1 ?
 
+
 ###### IS THE DATA RIGHT?
+###### IS "EVENTNO" var RIGHT?
+
+###### ARE TWO EVENTS TOO FEW ?
+
+###### TIME TRANSFORMED VARIABLES ? "tt" function.
+
+## zorn; put is a predictor...reverse it.
 
 
 ## WLW (Zorn's Day 6, competing events)
@@ -660,6 +668,7 @@ load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RD
 
 
 
+
 # dur.dep data organization
 dur.dep = ag.data 
 
@@ -669,6 +678,7 @@ dur.dep$one<-rep(1,times=nrow(dur.dep))
 
 library(plyr)
 dur.dep<- ddply(dur.dep,"country",mutate,eventno=cumsum(dem.tax)+1,altstart=cumsum(one)-1,altstop=cumsum(one))
+
 
 
 # wlw model
