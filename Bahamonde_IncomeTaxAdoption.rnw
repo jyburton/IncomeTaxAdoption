@@ -579,6 +579,9 @@ DO NOT use Andersen-Gill: events are assumed to be INDEPENDENT. I argue the exac
 
 include \citet[57]{Kurtz:2013aa}, and how he contests the notion that regime type and state-building processes run through different channels. He criticizes, for ex., the measurement of state capacity using ``property rights protection''.
 
+% on the importance of taxation as "the" way to measure state capacities. 
+\citet[60-61]{Kurtz:2013aa}: ``the best measures would be [one] that all (or nearly all) states consider to be of primary importance = for these can be assumed to be pursued vigorously across contexts, and variations in success will depend principally on variation in the effectiveness of institutions, not on opportunity costs or political will'' I both agree and disagree with this definition. (1) 
+
 }
 
 <<function, echo=FALSE, comment=NA, warning=FALSE, message=F,results='hide', cache=TRUE>>=
