@@ -42,7 +42,7 @@
 \pagestyle{fancy} % All pages have headers and footers
 \fancyhead{} % Blank out the default header
 \fancyfoot{} % Blank out the default footer
-\fancyhead[C]{Very preliminary draft, please DO NOT circulate} % Custom header text
+\fancyhead[C]{Job Market Paper} % Custom header text
 \fancyfoot[RO,LE]{\thepage} % Custom footer text
 
 %----------------------------------------------------------------------------------------
@@ -182,7 +182,10 @@ This paper elaborates on these insights by tracing the \emph{political origins} 
 
 \end{abstract}
 
-{\bf\vspace{10mm}\hspace{50mm} 4,387 words, total}
+{\bf\vspace{10mm}\hspace{50mm} 4,387 words, total} \\
+
+{\bf Download last version of the paper} \href{https://github.com/hbahamonde/IncomeTaxAdoption/raw/Summer_2016/Bahamonde_IncomeTaxAdoption.pdf}{\texttt{here}}
+
 
 
 %----------------------------------------------------------------------------------------
