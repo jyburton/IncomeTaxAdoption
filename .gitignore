@@ -20,7 +20,6 @@
 *.fls
 *.RData
 *.Rhistory
-*.pdf
 *.tex
 *.rdb
 *.rdx
