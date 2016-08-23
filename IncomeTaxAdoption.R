@@ -231,7 +231,7 @@ save(logitgee, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAd
 
 ##################################################
 ##              DATA PREP
-# Multiple Events Framework
+# Multiple Events Framework: Andersen-Gill
 ##################################################
 
 
@@ -335,9 +335,11 @@ save(ag.data, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdo
 
 ##################################################
 ##              DATA PREP
-#                               Long Democracy
+# Multiple Events Framework: Democracy and Income Taxation Data
+## BY SEPARATE
 ##################################################
 
+## data prep
 cat("\014")
 rm(list=ls())
 setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
@@ -349,118 +351,100 @@ load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_
 ### Rename Dataset
 tax.dem.long = data
 
-### drop Boix's missings
-tax.dem.long = tax.dem.long[!is.na(tax.dem.long$boix_democracy),]
+## trim dataset 
+# Create a starting point variable for DEMOCRACY.
+tax.dem.long.chile = data.frame(ifelse(tax.dem.long$year== 1909 & tax.dem.long$country == "Chile",1,0)) 
+tax.dem.long.colombia  = data.frame(ifelse(tax.dem.long$year== 1937 & tax.dem.long$country == "Colombia",1,0)) 
+tax.dem.long.ecuador  = data.frame(ifelse(tax.dem.long$year== 1948 & tax.dem.long$country == "Ecuador",1,0)) 
+tax.dem.long.guatemala  = data.frame(ifelse(tax.dem.long$year== 1945 & tax.dem.long$country == "Guatemala",1,0)) 
+tax.dem.long.nicaragua  = data.frame(ifelse(tax.dem.long$year== 1984 & tax.dem.long$country == "Nicaragua",1,0)) 
+tax.dem.long.peru  = data.frame(ifelse(tax.dem.long$year== 1956 & tax.dem.long$country == "Peru",1,0)) 
+tax.dem.long.venezuela  = data.frame(ifelse(tax.dem.long$year== 1959 & tax.dem.long$country == "Venezuela",1,0))
+
+## Sum across all the rows.
+tax.dem.long.d = tax.dem.long.chile +  tax.dem.long.colombia +  tax.dem.long.ecuador +  tax.dem.long.guatemala +  tax.dem.long.nicaragua +  tax.dem.long.peru +  tax.dem.long.venezuela
+colnames(tax.dem.long.d) = "democracy"
+
+## generate the dataset
+aux3.d = subset(tax.dem.long, select = c(country, year))
+democracy.s = data.frame(aux3.d, tax.dem.long.d)
+
+## merge with the dataset
+tax.dem.long = merge(democracy.s, tax.dem.long, by=c("country", "year"))
+colnames(tax.dem.long)[3] = "democracy.s"
+
+# Create a starting point variable for INCOMETAX
+incometax.s.chile = data.frame(ifelse(tax.dem.long$year==1924 & tax.dem.long$country == "Chile",1,0)) # Chile,  1924 (Mamalakis [1976, p. 20]
+incometax.s.colombia  = data.frame(ifelse(tax.dem.long$year==1935 & tax.dem.long$country == "Colombia",1,0)) # Colombia, Ley 78 Figueroa2008a, p. 9.
+incometax.s.ecuador  = data.frame(ifelse(tax.dem.long$year==1945 & tax.dem.long$country == "Ecuador",1,0)) # Ecuador Aguilera2013 p. 135
+incometax.s.guatemala  = data.frame(ifelse(tax.dem.long$year==1963 & tax.dem.long$country == "Guatemala",1,0)) # Guatemala: Decreto 1559, De2007 p 165
+incometax.s.nicaragua  = data.frame(ifelse(tax.dem.long$year==1974 & tax.dem.long$country == "Nicaragua",1,0)) # Ley No. 662 de 5 de Noviembre de 1974 (http://legislacion.asamblea.gob.ni/Normaweb.nsf/($All)/024063C3B373125E062570A10057EE73?OpenDocument)
+incometax.s.peru  = data.frame(ifelse(tax.dem.long$year==1934 & tax.dem.long$country == "Peru",1,0)) # Peru, Ley 7904 de 1934
+incometax.s.venezuela  = data.frame(ifelse(tax.dem.long$year==1943 & tax.dem.long$country == "Venezuela",1,0)) # Venezuela, Ley de Impuesto sobre la Renta, Publicada en la Gaceta Oficial número 20.851 del 17 de julio de 1.942, pero entra en vigencia el ano siguiente
+
+## Sum across all the rows.
+incometax.s = incometax.s.chile +  incometax.s.colombia +  incometax.s.ecuador +  incometax.s.guatemala +  incometax.s.nicaragua +  incometax.s.peru +  incometax.s.venezuela
+colnames(incometax.s) = "incometax"
 
 
-## Democracy Plot
+## generate the dataset
+aux4.s = subset(data, select = c(country, year))
+incometax.s = data.frame(aux4.s, incometax.s)
 
-### before recode, save country names
-levels = c(levels(tax.dem.long$country)[4],
-           levels(tax.dem.long$country)[5],
-           levels(tax.dem.long$country)[8],
-           levels(tax.dem.long$country)[10],
-           levels(tax.dem.long$country)[14], 
-           levels(tax.dem.long$country)[17],
-           levels(tax.dem.long$country)[20]
+## merge with the dataset
+tax.dem.long = merge(incometax.s, tax.dem.long, by=c("country", "year"))
+colnames(tax.dem.long)[3] = "incometax.s"
+
+# Add up the two columns
+## Because there are no (exact) "ties" between DEMOCRACY and TAXATION, a simple
+## cross summation between the two columns will suffice.
+### Check this if the sample of countries is modified
+tax.dem.long$dem.tax = tax.dem.long$incometax.s+tax.dem.long$democracy.s
+
+
+# Now, generate a variable to exclude the periods that follow BOTH events (i.e. DEM and INCOMETAX)
+##
+tax.dem.long=within(tax.dem.long, {
+        dem.cumsum <- ave(democracy.s, country, FUN = cumsum)
+}
+)
+tax.dem.long=within(tax.dem.long, {
+        tax.cumsum <- ave(incometax.s, country, FUN = cumsum)
+}
 )
 
-### recode country labels - the plot cant plot cat vars.
-library(car) # install.packages("car") 
-tax.dem.long$country = recode(as.numeric(tax.dem.long$country), 
-                              "4 = 2 ; 
-                              5 = 4 ;
-                              8 = 6;
-                              10 = 8;
-                              14 = 10;
-                              17 = 12;
-                              20 = 14")
+tax.dem.long<-tax.dem.long[!(tax.dem.long$dem.cumsum==1 & tax.dem.long$tax.cumsum==1 & tax.dem.long$incometax.s==0 & tax.dem.long$democracy.s==0),]
 
-tax.dem.long$country <- ordered(tax.dem.long$country,
-                                       levels = c(2,4,6,8,10,12,14),
-                                       labels = c(levels))
-
-
-### label Boix's variable on democracy.
-tax.dem.long$boix_democracy <- ordered(tax.dem.long$boix_democracy,
-                     levels = c(0,1),
-                     labels = c("Non-Democracy", "Democracy"))
-
-### plot
-library(ggplot2)
-ggplot(tax.dem.long, 
-       aes(xmin = year, 
-           xmax = year + 1, 
-           ymin = country , 
-           ymax = as.numeric(country) + .4,
-           fill = as.factor(boix_democracy))) + 
-  geom_rect(alpha=0.7) +
-  #xlim(1895, 2010) + 
-  theme_bw() + 
-  theme(
-    axis.text.y = element_text(size=12), 
-    axis.text.x = element_text(size=12), 
-    axis.title.y = element_text(size=10), 
-    axis.title.x = element_text(size=10), 
-    legend.text=element_text(size=15), 
-    legend.title=element_text(size=0),
-    legend.position = "bottom"
-    ) +
-  scale_fill_discrete(guide = guide_legend(title = NULL))
-
-
-
-
-
-
-
-## data prep
-
-cat("\014")
-rm(list=ls())
-setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
-
-
-# Load Data
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
-
-### Rename Dataset
-tax.dem.long = data
 
 ### drop Boix's missings
 tax.dem.long = tax.dem.long[!is.na(tax.dem.long$boix_democracy),]
 
+## gen dem.trans
+library(data.table) # install.packages("data.table")
+tax.dem.long.dt = data.table(tax.dem.long)
+tax.dem.long.dt = tax.dem.long.dt[, dem.trans := ifelse(duplicated(boix_democracy) & boix_democracy == 1, NA_integer_, boix_democracy), by = rleid(boix_democracy)][]
+tax.dem.long = data.frame(tax.dem.long.dt)
 
-# zero variable
-tax.dem.long$zero = ifelse(tax.dem.long$boix_democracy == 0,0,NA)
+## gen tax.trans
+library(data.table) # install.packages("data.table")
+tax.dem.long.dt = data.table(tax.dem.long)
+tax.dem.long.dt = tax.dem.long.dt[, tax.trans := ifelse(duplicated(incometax.d) & incometax.d == 1, NA_integer_, incometax.d), by = rleid(incometax.d)][]
+tax.dem.long = data.frame(tax.dem.long.dt)
 
+## generate a cumsum of income tax.
+tax.dem.long$incometax.d.cumsum <- ave(tax.dem.long$incometax.d, tax.dem.long$country, FUN=cumsum)
 
-# ones
-tax.dem.long$ones <- ave(tax.dem.long$boix_democracy, tax.dem.long$country, FUN=cumsum)
+## generate a cumsum of dem 
+tax.dem.long$democracy.d.cumsum <- ave(tax.dem.long$democracy.d, tax.dem.long$country, FUN=cumsum)
 
-# bigger than 1, equals zero
-tax.dem.long$ones[tax.dem.long$ones > 1 & tax.dem.long$boix_democracy == 1] <- NA
+### gen quadratic terms
+tax.dem.long$constmanufact.sq = tax.dem.long$constmanufact^2 
+tax.dem.long$constagricult.sq = tax.dem.long$constagricult^2
+tax.dem.long$democracy.d.cumsum.sq = tax.dem.long$democracy.d.cumsum^2
+tax.dem.long$incometax.d.cumsum.sq = tax.dem.long$incometax.d.cumsum^2
 
-
-
-
-tax.dem.long$zero = tax.dem.long$boix_democracy[tax.dem.long$boix_democracy == 0 & 
-                                                  tax.dem.long$boix_democracy == 1] <- 0
-
-
-
-
-
-### generate a cumsum var with years of democracy
-tax.dem.long$dem.trans <- ave(tax.dem.long$boix_democracy, tax.dem.long$country, FUN=cumsum)
-
-
-### convert into NA all values > than 1.
-tax.dem.long$dem.trans[tax.dem.long$dem.trans > 1 & tax.dem.long$boix_democracy == 0] <- NA
-tax.dem.long$dem.trans[tax.dem.long$dem.trans > 1] <- 1
-
-
-# HERE
+## Saving Data
+save(tax.dem.long, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/tax_dem_long.RData") # in paper's folder
 
 
 ##################################################
@@ -736,6 +720,7 @@ load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/L_cox.RDat
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/logitgee.RData") # Logit GEE
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RData") # For Multiple Non Competing Hazard Ratios
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/l_clogit.RData") # Lagged CONSTANT AGR MANUFACT for clogit  (fixed effects)
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/tax_dem_long.RData") # For Simultaneous Events.
 
 
 
@@ -764,22 +749,6 @@ cox2 = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
 ### It might be a good idea to square it. 
 
 ## This kind of variable I guess is the "tt" term in the coxph package.
-
-
-##### QUESTIONS
-
-###### DO I HAVE TO COUNT EVENTS AS 0-0-0-1-0-0-... OR
-###### 0-0-0-1-1-1-1-1 ?
-
-
-###### IS THE DATA RIGHT?
-###### IS "EVENTNO" var RIGHT?
-
-###### ARE TWO EVENTS TOO FEW ?
-
-###### TIME TRANSFORMED VARIABLES ? "tt" function.
-
-## zorn; put is a predictor...reverse it.
 
 
 ## WLW (Zorn's Day 6, competing events)
@@ -814,6 +783,7 @@ dur.dep<- ddply(dur.dep,"country",mutate,eventno=cumsum(dem.tax)+1,altstart=cums
 
 # wlw model
 ## data prep
+
 wlw = dur.dep
 wlw<-wlw[rep(1:nrow(wlw),each=max(wlw$eventno)),]
 
@@ -821,11 +791,15 @@ wlw<-ddply(wlw,c("country","year"),mutate, eventrisk=cumsum(one))
 
 wlw$dem.tax<-ifelse(wlw$eventno==wlw$eventrisk & wlw$dem.tax==1,1,0)
 
+
+
+
+
 ## model
 library(survival)
 wlw.S<-Surv(wlw$altstart, wlw$altstop, wlw$dem.tax)
 
-coxph(wlw.S ~ constmanufact + constagricult + strata(eventno) + cluster(country), data=wlw, method="efron")
+coxph(wlw.S ~ constmanufact^2 + constagricult^2 + strata(eventno) + cluster(country), data=wlw, method="efron")
 
 
 
@@ -900,35 +874,52 @@ library(survival) # install.packages("survival")
 cox2.ag = coxph(Surv(ag.data$year, ag.data$year2, ag.data$dem.tax, origin=1900) ~ log(constmanufact) + log(constagricult) + cluster(country), data=ag.data)
 
 
-# DO NOT TOUCH
+# DONT TOUCH
 # WORKING MODEL for clogit
 library(survival) # install.packages("survival")
 clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata(country), method= "efron", data = data)
 
+# DONT TOUCH
+## model tax <- dem
+library(survival) # install.packages("survival") 
+options(scipen = 999) # bias against scientific notation
+tax.dem.m = coxph(Surv(tax.dem.long$year, tax.dem.long$year2, tax.dem.long$tax.trans, origin=1900) ~ 
+                          constmanufact + 
+                          #constmanufact.sq + 
+                          constagricult + 
+                          #constagricult.sq + 
+                          #democracy.d.cumsum + 
+                          democracy.d.cumsum.sq + 
+                          cluster(country), 
+                  data=tax.dem.long)
+
+
+# DONT TOUCH
+## model dem <- tax 
+library(survival) # install.packages("survival") 
+options(scipen = 999) # bias against scientific notation
+dem.tax.m = coxph(Surv(tax.dem.long$year, tax.dem.long$year2, tax.dem.long$dem.trans, origin=1900) ~ 
+                          constmanufact + 
+                          #constmanufact.sq + 
+                          constagricult + 
+                          #constagricult.sq + 
+                          incometax.d.cumsum.sq + 
+                          cluster(country), data=tax.dem.long)
 
 
 # screenreg / texreg
 screenreg(
-        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1),
+        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1, tax.dem.m, dem.tax.m),
         caption = "Structural Origins of Income Taxation: Income Tax Law and Democratic Development",
-        custom.coef.names = c(
-                "Manufacture Output$_{tt}$",
-                "Agricultural Output$_{tt}$",
-                "Manufacture Output  (ln)",
-                "Agricultural Output (ln)",
-                "Manufacture Output$_{t-1}$  (ln)",
-                "Agricultural Output$_{t-1}$  (ln)",
-                "Urban Population  (ln)",
-                "(intercept)",
-                "Total Population  (ln)"
-        ),
         custom.model.names = c(
                 "Cox-PH: Time Transformed",
                 "Cox-PH: Logged",
                 "Cox-PH: Lagged",
                 "Conditional Logit: FE",
                 "Cox-PH: Andersen-Gill",
-                "Logit GEE"),
+                "Logit GEE",
+                "Taxation-Democracy",
+                "Democracy-Taxation"),
         label = "results:1",
         custom.note = "%stars. Robust Standard Errors in All Models",
         fontsize = "scriptsize",
@@ -937,7 +928,17 @@ screenreg(
         float.pos = "h"
 )
         
-
+custom.coef.names = c(
+        "Manufacture Output$_{tt}$",
+        "Agricultural Output$_{tt}$",
+        "Manufacture Output  (ln)",
+        "Agricultural Output (ln)",
+        "Manufacture Output$_{t-1}$  (ln)",
+        "Agricultural Output$_{t-1}$  (ln)",
+        "Urban Population  (ln)",
+        "(intercept)",
+        "Total Population  (ln)"
+        
 
 ##################################################
 ##              POST ESTIMATION
@@ -1034,6 +1035,8 @@ texreg(cox3,
 # devtools::install_github('christophergandrud/simPH')
 library(simPH)
 
+
+# constmanufact simulation plot
 set.seed(602)
 sim3.m <- coxsimLinear(cox3, 
                        b = "constmanufact", 
@@ -1041,7 +1044,9 @@ sim3.m <- coxsimLinear(cox3,
                        nsim = 2000,
                        spin = T,
                        Xj = seq(min(cox$constmanufact), max(cox$constmanufact), by=250)
-)
+                       )
+
+# constagricult simulation plot
 set.seed(602)
 sim3.a <- coxsimLinear(cox3, 
                        b = "constagricult", 
@@ -1049,7 +1054,18 @@ sim3.a <- coxsimLinear(cox3,
                        nsim = 2000,
                        #spin = T,
                        Xj = seq(min(cox$constagricult), max(cox$constagricult), by=150)
-)
+                       )
+
+
+# Taxation <- Democracy // simulation plot
+set.seed(602)
+tax.dem.m.3 <- coxsimLinear(tax.dem.m, 
+                            b = "democracy.d.cumsum.sq", 
+                            qi = "First Difference",
+                            nsim = 2000,
+                            #spin = T,
+                            Xj = seq(min(tax.dem.long$democracy.d.cumsum), max(tax.dem.long$democracy.d.cumsum), by=1)
+                            )
 
 # It says "All Xl set to 0" b/c it sets the reference category to 0.
 # Hazard ratios are COMPARISONS, so the coefficients mean the effects of the Betas, relative to 0.
@@ -1058,11 +1074,11 @@ sim3.a <- coxsimLinear(cox3,
 ## IMPORTANT! A relative hazard for a unit at zero is always one, as it is a ratio of the hazards with itself. Gandrud2015 p. 10
 simGG(sim3.m, xlab = "Industrial Output")
 simGG(sim3.a, xlab = "Agricultural Output")
+simGG(tax.dem.m.3, xlab = "Cumulative Democratic Experience")
 
 # Just in case I want to plot these using GGPLOT2, the QI are
 ## sim3.m$sims["QI"]
 ## sim3.a$sims["QI"]
-
 
 ########################################################
 #### predicted survivor functions
@@ -1109,6 +1125,83 @@ logitgee.1.x.L <- setx(logitgee.1, ln.constmanufact = summary(logitgee$ln.constm
 logitgee.1.x.H <- setx(logitgee.1, ln.constmanufact = summary(logitgee$ln.constmanufact)[5])
 set.seed(602)
 logitgee.1.s <- sim(logitgee.1, x = logitgee.1.x.L, x1= logitgee.1.x.H, num=2500)
+
+########################################################
+#### DEMOCRACY DURATION PLOT
+########################################################
+
+
+cat("\014")
+rm(list=ls())
+setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
+
+
+# Load Data
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
+
+### Rename Dataset
+tax.dem.long = data
+
+### drop Boix's missings
+tax.dem.long = tax.dem.long[!is.na(tax.dem.long$boix_democracy),]
+
+
+## Democracy Plot
+
+### before recode, save country names
+levels = c(levels(tax.dem.long$country)[4],
+           levels(tax.dem.long$country)[5],
+           levels(tax.dem.long$country)[8],
+           levels(tax.dem.long$country)[10],
+           levels(tax.dem.long$country)[14], 
+           levels(tax.dem.long$country)[17],
+           levels(tax.dem.long$country)[20]
+)
+
+### recode country labels - the plot cant plot cat vars.
+library(car) # install.packages("car") 
+tax.dem.long$country = recode(as.numeric(tax.dem.long$country), 
+                              "4 = 2 ; 
+                              5 = 4 ;
+                              8 = 6;
+                              10 = 8;
+                              14 = 10;
+                              17 = 12;
+                              20 = 14")
+
+tax.dem.long$country <- ordered(tax.dem.long$country,
+                                levels = c(2,4,6,8,10,12,14),
+                                labels = c(levels))
+
+
+### label Boix's variable on democracy.
+tax.dem.long$boix_democracy <- ordered(tax.dem.long$boix_democracy,
+                                       levels = c(0,1),
+                                       labels = c("Non-Democracy", "Democracy"))
+
+### plot
+library(ggplot2) # install.packages("ggplot2")
+ggplot(tax.dem.long, 
+       aes(xmin = year, 
+           xmax = year + 1, 
+           ymin = country , 
+           ymax = as.numeric(country) + .4,
+           fill = as.factor(boix_democracy))) + 
+        geom_rect(alpha=0.7) +
+        #xlim(1895, 2010) + 
+        theme_bw() + 
+        theme(
+                axis.text.y = element_text(size=12), 
+                axis.text.x = element_text(size=12), 
+                axis.title.y = element_text(size=10), 
+                axis.title.x = element_text(size=10), 
+                legend.text=element_text(size=15), 
+                legend.title=element_text(size=0),
+                legend.position = "bottom"
+        ) +
+        scale_fill_discrete(guide = guide_legend(title = NULL))
+
+
 
 
 
