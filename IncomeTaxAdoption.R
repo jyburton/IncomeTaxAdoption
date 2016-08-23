@@ -335,6 +335,136 @@ save(ag.data, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdo
 
 ##################################################
 ##              DATA PREP
+#                               Long Democracy
+##################################################
+
+cat("\014")
+rm(list=ls())
+setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
+
+
+# Load Data
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
+
+### Rename Dataset
+tax.dem.long = data
+
+### drop Boix's missings
+tax.dem.long = tax.dem.long[!is.na(tax.dem.long$boix_democracy),]
+
+
+## Democracy Plot
+
+### before recode, save country names
+levels = c(levels(tax.dem.long$country)[4],
+           levels(tax.dem.long$country)[5],
+           levels(tax.dem.long$country)[8],
+           levels(tax.dem.long$country)[10],
+           levels(tax.dem.long$country)[14], 
+           levels(tax.dem.long$country)[17],
+           levels(tax.dem.long$country)[20]
+)
+
+### recode country labels - the plot cant plot cat vars.
+library(car) # install.packages("car") 
+tax.dem.long$country = recode(as.numeric(tax.dem.long$country), 
+                              "4 = 2 ; 
+                              5 = 4 ;
+                              8 = 6;
+                              10 = 8;
+                              14 = 10;
+                              17 = 12;
+                              20 = 14")
+
+tax.dem.long$country <- ordered(tax.dem.long$country,
+                                       levels = c(2,4,6,8,10,12,14),
+                                       labels = c(levels))
+
+
+### label Boix's variable on democracy.
+tax.dem.long$boix_democracy <- ordered(tax.dem.long$boix_democracy,
+                     levels = c(0,1),
+                     labels = c("Non-Democracy", "Democracy"))
+
+### plot
+library(ggplot2)
+ggplot(tax.dem.long, 
+       aes(xmin = year, 
+           xmax = year + 1, 
+           ymin = country , 
+           ymax = as.numeric(country) + .4,
+           fill = as.factor(boix_democracy))) + 
+  geom_rect(alpha=0.7) +
+  #xlim(1895, 2010) + 
+  theme_bw() + 
+  theme(
+    axis.text.y = element_text(size=12), 
+    axis.text.x = element_text(size=12), 
+    axis.title.y = element_text(size=10), 
+    axis.title.x = element_text(size=10), 
+    legend.text=element_text(size=15), 
+    legend.title=element_text(size=0),
+    legend.position = "bottom"
+    ) +
+  scale_fill_discrete(guide = guide_legend(title = NULL))
+
+
+
+
+
+
+
+## data prep
+
+cat("\014")
+rm(list=ls())
+setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
+
+
+# Load Data
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
+
+### Rename Dataset
+tax.dem.long = data
+
+### drop Boix's missings
+tax.dem.long = tax.dem.long[!is.na(tax.dem.long$boix_democracy),]
+
+
+# zero variable
+tax.dem.long$zero = ifelse(tax.dem.long$boix_democracy == 0,0,NA)
+
+
+# ones
+tax.dem.long$ones <- ave(tax.dem.long$boix_democracy, tax.dem.long$country, FUN=cumsum)
+
+# bigger than 1, equals zero
+tax.dem.long$ones[tax.dem.long$ones > 1 & tax.dem.long$boix_democracy == 1] <- NA
+
+
+
+
+tax.dem.long$zero = tax.dem.long$boix_democracy[tax.dem.long$boix_democracy == 0 & 
+                                                  tax.dem.long$boix_democracy == 1] <- 0
+
+
+
+
+
+### generate a cumsum var with years of democracy
+tax.dem.long$dem.trans <- ave(tax.dem.long$boix_democracy, tax.dem.long$country, FUN=cumsum)
+
+
+### convert into NA all values > than 1.
+tax.dem.long$dem.trans[tax.dem.long$dem.trans > 1 & tax.dem.long$boix_democracy == 0] <- NA
+tax.dem.long$dem.trans[tax.dem.long$dem.trans > 1] <- 1
+
+
+# HERE
+
+
+##################################################
+##              DATA PREP
 #                               Lagged CLOGIT
 ##################################################
 
@@ -552,6 +682,7 @@ ggsurv(survfit(surv.object~Proximity, cox, conf.type="none")) +
     axis.title.x = element_text(colour = "black")) + 
   xlab("Year") +
   guides(fill = guide_legend(title = "LEFT"))
+
 
 
 ##################################################
