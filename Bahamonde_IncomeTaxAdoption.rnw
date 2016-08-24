@@ -324,6 +324,21 @@ By definition, monopolies limit the entrance of alternative goods. In general, m
 
 
 % HERE
+%<<test-a, cache=FALSE>>=
+%source('/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/%analize.R')
+%@
+
+
+<<echo=FALSE, cache= F>>=
+knitr::read_chunk('/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/IncomeTaxAdoption.R')
+@
+
+
+<<chunk-1>>=
+
+@
+
+
 
 
 % explain the logic of industrial/agricultural output rates
@@ -338,158 +353,7 @@ We build on theories that claim that economic and political competition (or the 
 Intra-elite (in)equality and regime type plays a fundamental role in our argument. There have been important recent contributions lately (see for example \citet[Ch. 9]{Acemoglu:1996rm} and  \citet[]{Ansell:2014ty}). Building on this literature, we introduce the state capacities question. Our findings are consistent with \citet[9]{Rueschemeyer:1992}, in that ``[c]onsolidation of state power was an essential prerequisite for democratization''. One of our main contributions is the idea that inter-elite political inequality paired with inter-elite economic equality plays a fundamental role in political/institutional development. \citet[]{Garfias2015} finds in M\'exico the exact opposite: \emph{unequal} relative distribution of political and economical power causes state formation. The proposed mechanism is that ruling elites, taking advantage of their transitory strengthened  position, expropriate weaker elites and send bureaucrats to control local weakened bosses (his proxy for state capacities). We find that political monopolies were broken when the excluded industrial sector gained economic leverage.% that allowed them to bargain better political and economical conditions.
 
 <<incometax, echo = FALSE, fig.pos='h', warning = FALSE, message = F, fig.cap='Industrial and Agricultural Outputs, and Political Contestation', fig.align='center', fig.width=13, fig.height=12,dpi=300,cache = TRUE>>=
-load("/Users/hectorbahamonde/RU/Dissertation/Data/dissertation.Rdata") 
-# Load data
-library(ggplot2) # install.packages("ggplot2")
-library(gridExtra)  # install.packages("gridExtra")
 
-# To force GGplots to share same legend.
-grid_arrange_shared_legend <- function(...) {
-require(ggplot2)
-  require(gridExtra)
-  plots <- list(...)
-  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
-  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
-  lheight <- sum(legend$height)
-  grid.arrange(
-    do.call(arrangeGrob, lapply(plots, function(x)
-      x + theme(legend.position="none"))),
-    legend,
-    ncol = 1,
-    heights = grid::unit.c(unit(1, "npc") - lheight, lheight))
-}
-
-#### multiplot
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-        library(grid)
-        
-        # Make a list from the ... arguments and plotlist
-        plots <- c(list(...), plotlist)
-        
-        numPlots = length(plots)
-        
-        # If layout is NULL, then use 'cols' to determine layout
-        if (is.null(layout)) {
-                # Make the panel
-                # ncol: Number of columns of plots
-                # nrow: Number of rows needed, calculated from # of cols
-                layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                                 ncol = cols, nrow = ceiling(numPlots/cols))
-        }
-        
-        if (numPlots==1) {
-                print(plots[[1]])
-                
-        } else {
-                # Set up the page
-                grid.newpage()
-                pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-                
-                # Make each plot, in the correct location
-                for (i in 1:numPlots) {
-                        # Get the i,j matrix positions of the regions that contain this subplot
-                        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-                        
-                        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                                        layout.pos.col = matchidx$col))
-                }
-        }
-}
-
-#### plots
-chile.p = ggplot() + 
-    geom_smooth(data=subset(dissertation, country=="Chile"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-    geom_smooth(data=subset(dissertation, country=="Chile"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-    xlab("Year") +
-    ylab("GDP Output (ln)") +
-    labs(colour = "Legend") +
-    scale_x_continuous(limits=c(1890,2010)) + 
-    geom_vline(data=subset(dissertation, country=="Chile"), aes(xintercept = 1924, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-    geom_vline(aes(xintercept = 1909, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-    theme_bw() + 
-    theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Chile")
-
-peru.p = ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Peru"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Peru"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Peru"), aes(xintercept = 1934, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1956, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Peru") 
-
-colombia.p = ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Colombia"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Colombia"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Colombia"), aes(xintercept = 1935, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1937, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Colombia") 
-
-ecuador.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Ecuador"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Ecuador"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Ecuador"), aes(xintercept = 1945, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1948, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Ecuador") 
-
-
-venezuela.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Venezuela"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Venezuela"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Venezuela"), aes(xintercept = 1943, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1959, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Venezuela") 
-
-nicaragua.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Nicaragua"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Nicaragua"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Legend") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Nicaragua"), aes(xintercept = 1974, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1984, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Nicaragua") 
-
-guatemala.p= ggplot() + 
-        geom_smooth(data=subset(dissertation, country=="Guatemala"), aes(x=year, y=log(constagricult), colour="Agricultural Output"), fill=NA, size=1) +
-        geom_smooth(data=subset(dissertation, country=="Guatemala"), aes(x=year, y=log(constmanufact), colour="Industrial Output"), fill=NA, size=1) + 
-        xlab("Year") +
-        ylab("GDP Output (ln)") +
-        labs(colour = "Income Tax (ln)") +
-        scale_x_continuous(limits=c(1890,2010)) + 
-        geom_vline(data=subset(dissertation, country=="Guatemala"), aes(xintercept = 1963, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-        geom_vline(aes(xintercept = 1945, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
-        theme_bw() + 
-        theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
-    labs(title="Guatemala") 
-
-grid_arrange_shared_legend(chile.p, ecuador.p, nicaragua.p, venezuela.p, peru.p, colombia.p, guatemala.p)
 @
 
 %\paragraph{Strong States: A story of economic contestation and political competition} The states that turned into ``strong'' and states that stayed ``weak'', shared the same initial monopolistic conditions. However, ``strong'' states were able (while being ``weak'' states) to break the structural advantages traditional sector.  What eventually differentiated strong from weak states was that the former had an industrial sector backed up with rapid industrial growth, which allowed them to bargain better political and economical conditions with the traditional sector.

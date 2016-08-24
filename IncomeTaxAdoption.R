@@ -65,6 +65,20 @@ colnames(data)[3] = "democracy.d"
 data$year2 = data$year+1
 
 
+### Cumulative effects of spatial dependence
+spatial.cum = c(
+        ifelse(data$year>=1924,1,0) + # Chile,  1924 (Mamalakis [1976, p. 20]
+                ifelse(data$year>=1935,1,0) + # Colombia, Ley 78 Figueroa2008a, p. 9.               
+                ifelse(data$year>=1945,1,0) + # Ecuador Aguilera2013 p. 135                
+                ifelse(data$year>=1963,1,0) + # Guatemala: Decreto 1559, De2007 p 165                
+                ifelse(data$year>=1974,1,0) + # Nicaragua: Ley No. 662 de 5 de Noviembre de 1974 
+                ifelse(data$year>=1934,1,0) + # Peru, Ley 7904 de 1934       
+                ifelse(data$year>=1943,1,0) # Venezuela, Ley de Impuesto sobre la Renta        
+        )
+
+
+data$spatial.cum = spatial.cum
+
 ## Saving Data
 save(data, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # in paper's folder
 
@@ -330,8 +344,6 @@ ag.data<-ag.data[!(ag.data$dem.cumsum==1 & ag.data$tax.cumsum==1 & ag.data$incom
 
 ## Saving Data
 save(ag.data, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RData") # in paper's folder
-
-
 
 ##################################################
 ##              DATA PREP
@@ -737,119 +749,6 @@ cox2 = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
  ~ log(constmanufact) + log(constagricult) + cluster(country), data=cox)
 
 
-######################################################################
-#### HERE / TEST/ TESTING / PENDING
-
-### instead of frailty, try FIXED EFFECTS or Zorn's suggestion:
-### cumulative variable with the count of countries that have implemented
-### the income tax law. At the beggining all of them are 0, then Chile puts
-### a 1 in all of them, once it does, Chile gets out of the sample
-### but the zero stays there. Then, the second country adds another 1, summing
-### 2,...etc...etc.
-### It might be a good idea to square it. 
-
-## This kind of variable I guess is the "tt" term in the coxph package.
-
-
-## WLW (Zorn's Day 6, competing events)
-
-rm(list=ls())
-cat("\014")
-setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
-
-
-# load data
-load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RData")
-
-
-
-
-
-
-
-
-
-# dur.dep data organization
-dur.dep = ag.data 
-
-dur.dep<-dur.dep[order(dur.dep$country,dur.dep$year),]
-
-dur.dep$one<-rep(1,times=nrow(dur.dep))
-
-library(plyr)
-dur.dep<- ddply(dur.dep,"country",mutate,eventno=cumsum(dem.tax)+1,altstart=cumsum(one)-1,altstop=cumsum(one))
-
-
-
-# wlw model
-## data prep
-
-wlw = dur.dep
-wlw<-wlw[rep(1:nrow(wlw),each=max(wlw$eventno)),]
-
-wlw<-ddply(wlw,c("country","year"),mutate, eventrisk=cumsum(one))
-
-wlw$dem.tax<-ifelse(wlw$eventno==wlw$eventrisk & wlw$dem.tax==1,1,0)
-
-
-
-
-
-## model
-library(survival)
-wlw.S<-Surv(wlw$altstart, wlw$altstop, wlw$dem.tax)
-
-coxph(wlw.S ~ constmanufact^2 + constagricult^2 + strata(eventno) + cluster(country), data=wlw, method="efron")
-
-
-
-## time varying parameters model
-dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
-
-dur.dep$manXevent<-dur.dep$constmanufact*dur.dep$eventno
-dur.dep$agrXevent<-dur.dep$constagricult*dur.dep$eventno
-
-options(scipen = 999) # bias against scientific notation
-
-
-coxph(dur.dep.t.v.S~ 
-        log(manXevent) +
-        log(agrXevent) + 
-        log(exports) + 
-        strata(eventno) + 
-        cluster(country),
-      data=dur.dep,
-      method="efron")
-
-
-# elapsed time
-dur.dep.elap.t.S<-Surv(dur.dep$altstart, dur.dep$altstop, dur.dep$dem.tax)
-
-coxph(dur.dep.elap.t.S ~ 
-        constmanufact +
-        constagricult + 
-        strata(eventno) + 
-        cluster(country), 
-      data=dur.dep,
-      method="efron")
-
-
-# gap time
-library(survival)
-
-dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
-
-coxph(dur.dep.t.v.S~ 
-        constmanufact +
-        constagricult + 
-        strata(eventno) + 
-        cluster(country),
-      data=dur.dep,
-      method="efron")
-
-
-######################################################################
-
 # DO NOT TOUCH
 # LAGGED MODEL
 library(survival) # install.packages("survival") 
@@ -888,8 +787,8 @@ tax.dem.m = coxph(Surv(tax.dem.long$year, tax.dem.long$year2, tax.dem.long$tax.t
                           #constmanufact.sq + 
                           constagricult + 
                           #constagricult.sq + 
-                          #democracy.d.cumsum + 
-                          democracy.d.cumsum.sq + 
+                          democracy.d.cumsum + 
+                          #democracy.d.cumsum.sq + 
                           cluster(country), 
                   data=tax.dem.long)
 
@@ -903,13 +802,25 @@ dem.tax.m = coxph(Surv(tax.dem.long$year, tax.dem.long$year2, tax.dem.long$dem.t
                           #constmanufact.sq + 
                           constagricult + 
                           #constagricult.sq + 
-                          incometax.d.cumsum.sq + 
+                          incometax.d.cumsum + 
+                          #incometax.d.cumsum.sq + 
                           cluster(country), data=tax.dem.long)
+
+
+# DO NOT TOUCH
+# WORKING MODEL
+library(survival) # install.packages("survival") 
+spatial.m = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
+                  ~ log(constmanufact) + 
+                          log(constagricult) + 
+                          cluster(spatial.cum), 
+                  data=cox)
+
 
 
 # screenreg / texreg
 screenreg(
-        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1, tax.dem.m, dem.tax.m),
+        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1, tax.dem.m, dem.tax.m, spatial.m),
         caption = "Structural Origins of Income Taxation: Income Tax Law and Democratic Development",
         custom.model.names = c(
                 "Cox-PH: Time Transformed",
@@ -919,11 +830,13 @@ screenreg(
                 "Cox-PH: Andersen-Gill",
                 "Logit GEE",
                 "Taxation-Democracy",
-                "Democracy-Taxation"),
+                "Democracy-Taxation",
+                "Spatial Dependence"),
         label = "results:1",
         custom.note = "%stars. Robust Standard Errors in All Models",
         fontsize = "scriptsize",
         center = TRUE,
+        digits = 3,
         no.margin = TRUE, 
         float.pos = "h"
 )
@@ -938,6 +851,7 @@ custom.coef.names = c(
         "Urban Population  (ln)",
         "(intercept)",
         "Total Population  (ln)"
+)
         
 
 ##################################################
@@ -1209,6 +1123,9 @@ ggplot(tax.dem.long,
 #### TAX IMPOSITION PLOT
 ########################################################
 
+
+# ---- incometax ----
+
 load("/Users/hectorbahamonde/RU/Dissertation/Data/dissertation.Rdata") 
 # Load data
 library(ggplot2) # install.packages("ggplot2")
@@ -1362,6 +1279,89 @@ guatemala.p= ggplot() +
 
 grid_arrange_shared_legend(chile.p, ecuador.p, nicaragua.p, venezuela.p, peru.p, colombia.p, guatemala.p)
 
+######################################################################
+#### HERE / TEST/ TESTING / PENDING
+
+## WLW (Zorn's Day 6, competing events)
+rm(list=ls())
+cat("\014")
+setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
+
+# load data
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/ag_data.RData")
+
+# dur.dep data organization
+dur.dep = ag.data 
+
+dur.dep<-dur.dep[order(dur.dep$country,dur.dep$year),]
+
+dur.dep$one<-rep(1,times=nrow(dur.dep))
+
+library(plyr)
+dur.dep<- ddply(dur.dep,"country",mutate,eventno=cumsum(dem.tax)+1,altstart=cumsum(one)-1,altstop=cumsum(one))
+
+# wlw model
+## data prep
+
+wlw = dur.dep
+wlw<-wlw[rep(1:nrow(wlw),each=max(wlw$eventno)),]
+
+wlw<-ddply(wlw,c("country","year"),mutate, eventrisk=cumsum(one))
+
+wlw$dem.tax<-ifelse(wlw$eventno==wlw$eventrisk & wlw$dem.tax==1,1,0)
+
+
+## model
+library(survival)
+wlw.S<-Surv(wlw$altstart, wlw$altstop, wlw$dem.tax)
+
+coxph(wlw.S ~ constmanufact^2 + constagricult^2 + strata(eventno) + cluster(country), data=wlw, method="efron")
+
+## time varying parameters model
+dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
+
+dur.dep$manXevent<-dur.dep$constmanufact*dur.dep$eventno
+dur.dep$agrXevent<-dur.dep$constagricult*dur.dep$eventno
+
+options(scipen = 999) # bias against scientific notation
+
+
+coxph(dur.dep.t.v.S~ 
+              log(manXevent) +
+              log(agrXevent) + 
+              log(exports) + 
+              strata(eventno) + 
+              cluster(country),
+      data=dur.dep,
+      method="efron")
+
+
+# elapsed time
+dur.dep.elap.t.S<-Surv(dur.dep$altstart, dur.dep$altstop, dur.dep$dem.tax)
+
+coxph(dur.dep.elap.t.S ~ 
+              constmanufact +
+              constagricult + 
+              strata(eventno) + 
+              cluster(country), 
+      data=dur.dep,
+      method="efron")
+
+
+# gap time
+library(survival)
+
+dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
+
+coxph(dur.dep.t.v.S~ 
+              constmanufact +
+              constagricult + 
+              strata(eventno) + 
+              cluster(country),
+      data=dur.dep,
+      method="efron")
+
+######################################################################
 
 
 
