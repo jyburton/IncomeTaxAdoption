@@ -691,10 +691,15 @@ cat("\014")
 
 ##################################################
 ### THIS CHUNK GOES BEFORE THE MODELS
+
+
+
+
+
+## ---- texreg-extractor-geeglm ----
 library(texreg) # install.packages("texreg")
 library(methods)
 
-## ---- texreg-extractor-geeglm ----
 extract.geepack <- function(model) {
         s <- summary(model)
         names <- rownames(s$coef)
@@ -722,9 +727,19 @@ extract.geepack <- function(model) {
 
 setMethod("extract", signature = className("geeglm", "geepack"),
           definition = extract.geepack)
+## ---- 
+
 
 
 ##################################################
+
+
+
+
+
+
+
+## ---- results:1 ----
 # Load Datasets
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/incometax_data.RData") # Load data
 load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/cox.RData") # Cox
@@ -736,20 +751,17 @@ load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/tax_dem_lo
 
 
 
-# DO NOT TOUCH
 # Model with time-transformed variables
 library(survival) # install.packages("survival") 
 cox1.tt = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
  ~ tt(constmanufact) + tt(constagricult) + cluster(country), data=cox)
 
-# DO NOT TOUCH
-# WORKING MODEL
+# base model
 library(survival) # install.packages("survival") 
 cox2 = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
  ~ log(constmanufact) + log(constagricult) + cluster(country), data=cox)
 
 
-# DO NOT TOUCH
 # LAGGED MODEL
 library(survival) # install.packages("survival") 
 cox.L = coxph(Surv(L.cox$year, L.cox$year2, L.cox$incometax.s, origin=1901)
@@ -766,19 +778,15 @@ logitgee.1 = geeglm(incometax.d ~ log(constmanufact) + log(constagricult) + log(
 logitgee.1 = extract(logitgee.1)
 
 
-# DONT TOUCH
 # Recurrent Events: Income Tax AND Democracy
-# WORKING MODEL
 library(survival) # install.packages("survival") 
 cox2.ag = coxph(Surv(ag.data$year, ag.data$year2, ag.data$dem.tax, origin=1900) ~ log(constmanufact) + log(constagricult) + cluster(country), data=ag.data)
 
 
-# DONT TOUCH
-# WORKING MODEL for clogit
+# conditional logit
 library(survival) # install.packages("survival")
 clogit.1 = clogit(incometax.d ~  log(constmanufact) + log(constagricult) +strata(country), method= "efron", data = data)
 
-# DONT TOUCH
 ## model tax <- dem
 library(survival) # install.packages("survival") 
 options(scipen = 999) # bias against scientific notation
@@ -787,13 +795,12 @@ tax.dem.m = coxph(Surv(tax.dem.long$year, tax.dem.long$year2, tax.dem.long$tax.t
                           #constmanufact.sq + 
                           constagricult + 
                           #constagricult.sq + 
-                          democracy.d.cumsum + 
-                          #democracy.d.cumsum.sq + 
+                          #democracy.d.cumsum + 
+                          democracy.d.cumsum.sq + 
                           cluster(country), 
                   data=tax.dem.long)
 
 
-# DONT TOUCH
 ## model dem <- tax 
 library(survival) # install.packages("survival") 
 options(scipen = 999) # bias against scientific notation
@@ -802,13 +809,12 @@ dem.tax.m = coxph(Surv(tax.dem.long$year, tax.dem.long$year2, tax.dem.long$dem.t
                           #constmanufact.sq + 
                           constagricult + 
                           #constagricult.sq + 
-                          incometax.d.cumsum + 
-                          #incometax.d.cumsum.sq + 
+                          #incometax.d.cumsum + 
+                          incometax.d.cumsum.sq + 
                           cluster(country), data=tax.dem.long)
 
 
-# DO NOT TOUCH
-# WORKING MODEL
+# spatial dependence model
 library(survival) # install.packages("survival") 
 spatial.m = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
                   ~ log(constmanufact) + 
@@ -817,30 +823,57 @@ spatial.m = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
                   data=cox)
 
 
+# modernization theory model
+library(survival) # install.packages("survival") 
+modernization.m = coxph(Surv(
+        tax.dem.long$year, 
+        tax.dem.long$year2, 
+        tax.dem.long$dem.trans, origin=1900) ~ 
+                constmanufact + 
+                constagricult + 
+                madisonpercapgdp +
+                cluster(country), 
+        data=tax.dem.long)
+
+
 
 # screenreg / texreg
-screenreg(
-        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1, tax.dem.m, dem.tax.m, spatial.m),
+texreg(
+        list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1, tax.dem.m, dem.tax.m, spatial.m, modernization.m),
         caption = "Structural Origins of Income Taxation: Income Tax Law and Democratic Development",
         custom.model.names = c(
-                "Cox-PH: Time Transformed",
-                "Cox-PH: Logged",
-                "Cox-PH: Lagged",
-                "Conditional Logit: FE",
-                "Cox-PH: Andersen-Gill",
-                "Logit GEE",
-                "Taxation-Democracy",
-                "Democracy-Taxation",
-                "Spatial Dependence"),
+                "Cox-PH",# Time Transformed
+                "Cox-PH", # Logged
+                "Cox-PH", # Lagged
+                "Condd Logit", # FE
+                "Andersen-Gill",
+                "GEE",
+                "Tax.-Dem.",
+                "Dem.-Tax.",
+                "Spat. Dependence",
+                "Modern. Th."),
         label = "results:1",
         custom.note = "%stars. Robust Standard Errors in All Models",
         fontsize = "scriptsize",
         center = TRUE,
+        use.packages = FALSE,
+        dcolumn = TRUE,
+        booktabs = TRUE,
+        #longtable = TRUE,
         digits = 3,
-        no.margin = TRUE, 
-        float.pos = "h"
+        table = TRUE,
+        sideways = TRUE,
+        no.margin = TRUE#, 
+        #float.pos = "h"
 )
-        
+## ---- 
+
+
+
+
+
+
+
 custom.coef.names = c(
         "Manufacture Output$_{tt}$",
         "Agricultural Output$_{tt}$",
@@ -874,12 +907,21 @@ termplot(cox2, term=1, se=TRUE)
 termplot(cox2, term=2, se=TRUE)
 
 
+
+
+
+## ---- coxassump ----
 ## Testing Prop. Assumption
 test.assumption = cox.zph(cox2, transform = 'log')
 print(test.assumption)
 plot(test.assumption[1]) # covariate 1
 plot(test.assumption[2]) # covariate 2
-plot(test.assumption[3]) # covariate 3
+## ----
+
+
+
+
+
 
 ### If the proportional hazards assumption is true, 
 ### beta(t) will be a horizontal line. 
@@ -919,6 +961,14 @@ termplot(cox1.splines, term=2, se=TRUE)
 #### Simulation: Relative Hazard
 #### [simulation:1] [simulation:2]
 ########################################################
+
+
+
+
+
+
+
+## ---- simulation ----
 # load library
 library(survival)
 # I use this one for simulation (since it seems that the sim function doesn't take well natural logs)
@@ -930,6 +980,97 @@ cox3 = coxph(
   data=cox
   )
 
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github('christophergandrud/simPH')
+library(simPH)
+
+# constmanufact simulation plot
+set.seed(602)
+sim3.m <- coxsimLinear(cox3, 
+                       b = "constmanufact", 
+                       qi = "First Difference",
+                       nsim = 2000,
+                       spin = T,
+                       Xj = seq(min(cox$constmanufact), max(cox$constmanufact), by=250)
+)
+
+# constagricult simulation plot
+set.seed(602)
+sim3.a <- coxsimLinear(cox3, 
+                       b = "constagricult", 
+                       qi = "First Difference",
+                       nsim = 2000,
+                       #spin = T,
+                       Xj = seq(min(cox$constagricult), max(cox$constagricult), by=150)
+)
+
+# Taxation <- Democracy // simulation plot
+set.seed(602)
+tax.dem.m.3 <- coxsimLinear(tax.dem.m, 
+                            b = "democracy.d.cumsum.sq", 
+                            qi = "First Difference",
+                            nsim = 2000,
+                            #spin = T,
+                            Xj = seq(min(tax.dem.long$democracy.d.cumsum), max(tax.dem.long$democracy.d.cumsum), by=1)
+                            )
+## ----
+
+
+
+
+
+
+
+
+
+## ---- simulation:plots ----
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github('christophergandrud/simPH')
+library(simPH)
+
+# Plot
+## IMPORTANT! A relative hazard for a unit at zero is always one, as it is a ratio of the hazards with itself. Gandrud2015 p. 10
+
+sim.1 = simGG(sim3.m, xlab = "Industrial\nOutput", ylab = "") + 
+        theme_bw() + 
+        theme(axis.text.y = element_text(size=8), 
+              axis.text.x = element_text(size=8), 
+              axis.title.y = element_text(size=8), 
+              axis.title.x = element_text(size=8)
+              )
+
+
+sim.2 = simGG(sim3.a, xlab = "Agricultural\nOutput", ylab = "") + 
+        theme_bw() + 
+        theme(axis.text.y = element_text(size=8), 
+              axis.text.x = element_text(size=8), 
+              axis.title.y = element_text(size=8), 
+              axis.title.x = element_text(size=8)
+              )
+
+sim.3 = simGG(tax.dem.m.3, xlab = "Cumulative\nDemocratic Experience", ylab = "") +
+        theme_bw() + 
+        theme(axis.text.y = element_text(size=8), 
+              axis.text.x = element_text(size=8), 
+              axis.title.y = element_text(size=8), 
+              axis.title.x = element_text(size=8)
+              )
+
+library(cowplot) # install.packages("cowplot")
+plot_grid(sim.1, sim.2, sim.3, ncol = 3, labels = "auto", label_size = 7)
+## ----
+
+
+
+
+
+
+
+
+
+## ---- altmodel ----
 library(texreg) # install.packages("texreg")
 texreg(cox3,
         caption = "Structural Origins of Income Taxation: Model Used to Compute Simulations",
@@ -943,52 +1084,15 @@ texreg(cox3,
         fontsize = "scriptsize",
         float.pos = "h"
         )
-
-# install.packages("devtools")
-# library(devtools)
-# devtools::install_github('christophergandrud/simPH')
-library(simPH)
+## ----
 
 
-# constmanufact simulation plot
-set.seed(602)
-sim3.m <- coxsimLinear(cox3, 
-                       b = "constmanufact", 
-                       qi = "First Difference",
-                       nsim = 2000,
-                       spin = T,
-                       Xj = seq(min(cox$constmanufact), max(cox$constmanufact), by=250)
-                       )
-
-# constagricult simulation plot
-set.seed(602)
-sim3.a <- coxsimLinear(cox3, 
-                       b = "constagricult", 
-                       qi = "First Difference",
-                       nsim = 2000,
-                       #spin = T,
-                       Xj = seq(min(cox$constagricult), max(cox$constagricult), by=150)
-                       )
 
 
-# Taxation <- Democracy // simulation plot
-set.seed(602)
-tax.dem.m.3 <- coxsimLinear(tax.dem.m, 
-                            b = "democracy.d.cumsum.sq", 
-                            qi = "First Difference",
-                            nsim = 2000,
-                            #spin = T,
-                            Xj = seq(min(tax.dem.long$democracy.d.cumsum), max(tax.dem.long$democracy.d.cumsum), by=1)
-                            )
+
 
 # It says "All Xl set to 0" b/c it sets the reference category to 0.
 # Hazard ratios are COMPARISONS, so the coefficients mean the effects of the Betas, relative to 0.
-
-# Plot
-## IMPORTANT! A relative hazard for a unit at zero is always one, as it is a ratio of the hazards with itself. Gandrud2015 p. 10
-simGG(sim3.m, xlab = "Industrial Output")
-simGG(sim3.a, xlab = "Agricultural Output")
-simGG(tax.dem.m.3, xlab = "Cumulative Democratic Experience")
 
 # Just in case I want to plot these using GGPLOT2, the QI are
 ## sim3.m$sims["QI"]
@@ -1040,11 +1144,23 @@ logitgee.1.x.H <- setx(logitgee.1, ln.constmanufact = summary(logitgee$ln.constm
 set.seed(602)
 logitgee.1.s <- sim(logitgee.1, x = logitgee.1.x.L, x1= logitgee.1.x.H, num=2500)
 
+
+
+
+
+
+
 ########################################################
 #### DEMOCRACY DURATION PLOT
 ########################################################
 
 
+
+
+
+
+
+# ---- democracy:plot ----
 cat("\014")
 rm(list=ls())
 setwd("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption")
@@ -1114,7 +1230,7 @@ ggplot(tax.dem.long,
                 legend.position = "bottom"
         ) +
         scale_fill_discrete(guide = guide_legend(title = NULL))
-
+# ----
 
 
 
@@ -1124,8 +1240,15 @@ ggplot(tax.dem.long,
 ########################################################
 
 
-# ---- incometax ----
 
+
+
+
+
+
+
+
+# ---- incometax ----
 load("/Users/hectorbahamonde/RU/Dissertation/Data/dissertation.Rdata") 
 # Load data
 library(ggplot2) # install.packages("ggplot2")
@@ -1192,8 +1315,7 @@ chile.p = ggplot() +
   ylab("GDP Output (ln)") +
   labs(colour = "Legend") +
   scale_x_continuous(limits=c(1890,2010)) + 
-  geom_vline(data=subset(dissertation, country=="Chile"), aes(xintercept = 1924, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-  geom_vline(aes(xintercept = 1909, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
+  geom_vline(data=subset(dissertation, country=="Chile"), aes(xintercept = 1924, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law  
   theme_bw() + 
   theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
   labs(title="Chile")
@@ -1206,7 +1328,6 @@ peru.p = ggplot() +
   labs(colour = "Legend") +
   scale_x_continuous(limits=c(1890,2010)) + 
   geom_vline(data=subset(dissertation, country=="Peru"), aes(xintercept = 1934, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-  geom_vline(aes(xintercept = 1956, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
   theme_bw() + 
   theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
   labs(title="Peru") 
@@ -1219,7 +1340,6 @@ colombia.p = ggplot() +
   labs(colour = "Legend") +
   scale_x_continuous(limits=c(1890,2010)) + 
   geom_vline(data=subset(dissertation, country=="Colombia"), aes(xintercept = 1935, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-  geom_vline(aes(xintercept = 1937, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
   theme_bw() + 
   theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
   labs(title="Colombia") 
@@ -1232,7 +1352,6 @@ ecuador.p= ggplot() +
   labs(colour = "Legend") +
   scale_x_continuous(limits=c(1890,2010)) + 
   geom_vline(data=subset(dissertation, country=="Ecuador"), aes(xintercept = 1945, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-  geom_vline(aes(xintercept = 1948, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
   theme_bw() + 
   theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
   labs(title="Ecuador") 
@@ -1246,7 +1365,6 @@ venezuela.p= ggplot() +
   labs(colour = "Legend") +
   scale_x_continuous(limits=c(1890,2010)) + 
   geom_vline(data=subset(dissertation, country=="Venezuela"), aes(xintercept = 1943, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-  geom_vline(aes(xintercept = 1959, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
   theme_bw() + 
   theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
   labs(title="Venezuela") 
@@ -1259,7 +1377,6 @@ nicaragua.p= ggplot() +
   labs(colour = "Legend") +
   scale_x_continuous(limits=c(1890,2010)) + 
   geom_vline(data=subset(dissertation, country=="Nicaragua"), aes(xintercept = 1974, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-  geom_vline(aes(xintercept = 1984, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
   theme_bw() + 
   theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
   labs(title="Nicaragua") 
@@ -1272,12 +1389,32 @@ guatemala.p= ggplot() +
   labs(colour = "Income Tax (ln)") +
   scale_x_continuous(limits=c(1890,2010)) + 
   geom_vline(data=subset(dissertation, country=="Guatemala"), aes(xintercept = 1963, colour= "Income Tax Law"), linetype = "longdash") + # Income Tax Law
-  geom_vline(aes(xintercept = 1945, colour= "Democracy"), linetype = "longdash") + # Democracy Boix
   theme_bw() + 
   theme(axis.text.y = element_text(size=12), axis.text.x = element_text(size=12), axis.title.y = element_text(size=10), axis.title.x = element_text(size=10), legend.text=element_text(size=15), legend.title=element_text(size=0))  + 
   labs(title="Guatemala") 
 
 grid_arrange_shared_legend(chile.p, ecuador.p, nicaragua.p, venezuela.p, peru.p, colombia.p, guatemala.p)
+# ----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ######################################################################
 #### HERE / TEST/ TESTING / PENDING
