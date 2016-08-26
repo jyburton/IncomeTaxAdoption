@@ -529,11 +529,18 @@ save(L.clogit, file = "/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAd
 ##################################################
 
 
-# generate Proximity var.
+
+
+
+## ---- survival:plot ----
+# load dataset
+load("/Users/hectorbahamonde/RU/Dissertation/Papers/IncomeTaxAdoption/cox.RData") # Cox
+
+# generate Contestation var.
 cox$Proximity <- as.numeric(cox$constmanufact + (cox$constmanufact*.5) >= cox$constagricult)
 
-library(plyr)
-cox$Proximity <- mapvalues(cox$Proximity, from = c("0", "1"), to = c("Low", "High"))
+library(plyr) # install.packages("plyr")
+cox$Contestation <- mapvalues(cox$Proximity, from = c("0", "1"), to = c("Low", "High"))
 
 
 # plot ggsurv function
@@ -663,21 +670,33 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
   pl
 }
 
-
-
-
 # generate survival object
+library(survival) # install.packages("survival")
 surv.object = Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
 
 # plot
-ggsurv(survfit(surv.object~Proximity, cox, conf.type="none")) + 
-  theme_bw() + 
-  theme(
-    legend.key = element_rect(colour = NA, fill = NA, size = 0.5),
-    panel.margin = unit(0, "lines"),
-    axis.title.x = element_text(colour = "black")) + 
-  xlab("Year") +
-  guides(fill = guide_legend(title = "LEFT"))
+ggsurv(survfit(surv.object~Contestation, cox, conf.type="none")) + 
+        theme_bw() + 
+        xlab("Year") +
+        guides(fill = guide_legend(title = "LEFT")) + 
+        theme(
+                axis.text.y = element_text(size=9), 
+                axis.text.x = element_text(size=9), 
+                axis.title.y = element_text(size=9), 
+                axis.title.x = element_text(size=9), 
+                legend.text=element_text(size=9), 
+                legend.title=element_text(size=9),
+                legend.position = "bottom",
+                legend.key = element_rect(colour = NA, fill = NA, size = 0.5),
+                panel.margin = unit(0, "lines"),
+                axis.title.x = element_text(colour = "black")
+                )
+## ----
+
+
+
+
+
 
 
 
