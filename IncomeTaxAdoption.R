@@ -780,7 +780,6 @@ library(survival) # install.packages("survival")
 cox2 = coxph(Surv(cox$year, cox$year2, cox$incometax.s, origin=1900)
  ~ log(constmanufact) + log(constagricult) + cluster(country), data=cox)
 
-
 # LAGGED MODEL
 library(survival) # install.packages("survival") 
 cox.L = coxph(Surv(L.cox$year, L.cox$year2, L.cox$incometax.s, origin=1901)
@@ -860,24 +859,47 @@ modernization.m = coxph(Surv(
 texreg(
         list(cox1.tt, cox2, cox.L, clogit.1, cox2.ag, logitgee.1, tax.dem.m, dem.tax.m, spatial.m, modernization.m),
         caption = "Structural Origins of Income Taxation: Income Tax Law and Democratic Development",
+        custom.coef.names = c(
+                "Manufacture Output$_{tt}$",
+                "Agricultural Output$_{tt}$",
+                #
+                "Manufacture Output  (ln)",
+                "Agricultural Output (ln)",
+                #
+                "Manufacture Output$_{t-1}$  (ln)",
+                "Agricultural Output$_{t-1}$  (ln)",
+                #
+                "intercept",
+                #
+                "Total Population  (ln)",
+                #
+                "Manufacture Output",
+                "Agricultural Output",
+                #
+                "Democracy (cum. sum)$^2$",
+                "Income Tax (cum. sum)$^2$",
+                #
+                "Per Capita GDP"
+        ),
         custom.model.names = c(
-                "Cox-PH",# Time Transformed
-                "Cox-PH", # Logged
-                "Cox-PH", # Lagged
-                "Condd Logit", # FE
-                "Andersen-Gill",
-                "GEE",
-                "Tax.-Dem.",
-                "Dem.-Tax.",
-                "Spat. Dependence",
-                "Modern. Th."),
+                "(1) Cox",# Time Transformed
+                "(2) Cox", # Logged
+                "(3) Cox", # Lagged
+                "(4) Cond. Logit", # FE
+                "(5) And.-Gill",
+                "(6) GEE",
+                "(7) Tax.-Dem.",
+                "(8) Dem.-Tax.",
+                "(9) Spat. Dep.",
+                "(10) Modern. Th."),
         label = "results:1",
         custom.note = "%stars. Robust Standard Errors in All Models",
-        fontsize = "scriptsize",
+        fontsize = "tiny",
         center = TRUE,
         use.packages = FALSE,
         dcolumn = TRUE,
         booktabs = TRUE,
+        omit.coef = "intercept",
         #longtable = TRUE,
         digits = 3,
         table = TRUE,
@@ -893,18 +915,7 @@ texreg(
 
 
 
-custom.coef.names = c(
-        "Manufacture Output$_{tt}$",
-        "Agricultural Output$_{tt}$",
-        "Manufacture Output  (ln)",
-        "Agricultural Output (ln)",
-        "Manufacture Output$_{t-1}$  (ln)",
-        "Agricultural Output$_{t-1}$  (ln)",
-        "Urban Population  (ln)",
-        "(intercept)",
-        "Total Population  (ln)"
-)
-        
+
 
 ##################################################
 ##              POST ESTIMATION
@@ -933,6 +944,8 @@ termplot(cox2, term=2, se=TRUE)
 ## Testing Prop. Assumption
 test.assumption = cox.zph(cox2, transform = 'log')
 print(test.assumption)
+par(mar=c(1,1,1,1))
+par(mfrow=c(2,1)) 
 plot(test.assumption[1]) # covariate 1
 plot(test.assumption[2]) # covariate 2
 ## ----
@@ -1095,10 +1108,9 @@ texreg(cox3,
         caption = "Structural Origins of Income Taxation: Model Used to Compute Simulations",
         custom.coef.names = c(
                 "Manufacture Output",
-                "Agricultural Output",
-                "Total Population"),
+                "Agricultural Output"),
         custom.model.names = "Cox-PH",
-        label = "results:2",
+        label = "altmodel",
         custom.note = "%stars. Robust Standard Errors in All Models",
         fontsize = "scriptsize",
         float.pos = "h"
@@ -1471,7 +1483,14 @@ wlw$dem.tax<-ifelse(wlw$eventno==wlw$eventrisk & wlw$dem.tax==1,1,0)
 library(survival)
 wlw.S<-Surv(wlw$altstart, wlw$altstop, wlw$dem.tax)
 
-coxph(wlw.S ~ constmanufact^2 + constagricult^2 + strata(eventno) + cluster(country), data=wlw, method="efron")
+coxph(wlw.S ~ constmanufact + 
+              constagricult + 
+              totpop +
+              strata(eventno) + cluster(country), data=wlw, method="efron")
+
+
+
+
 
 ## time varying parameters model
 dur.dep.t.v.S <- Surv(dur.dep$year,dur.dep$year2,dur.dep$dem.tax)
